@@ -4,7 +4,7 @@
 - Can AYTÖRE
 - Ebru GEÇİCİ
 - Mustafa KESER
-- Nazlı GÜL
+- Nazlı GÜL 
 - Taha BAYAZ
 - Talha ÜNLÜ
 
