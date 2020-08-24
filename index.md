@@ -18,4 +18,4 @@ You can find the data from this [link](https://www.kaggle.com/alpertemel/turkey-
 
 ### Project Proposal
 
-The project proposal is [here](https://www.google.com/)
+The project proposal is [here](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Proposal.html)
