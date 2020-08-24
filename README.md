@@ -2,7 +2,7 @@
 
 ### Group Members
 - Can AYTÖRE
-- Ebru GEÇİCİ
+- Ebru GEÇİCİ 
 - Mustafa KESER
 - Nazlı GÜL 
 - Taha BAYAZ
