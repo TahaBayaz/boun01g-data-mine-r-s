@@ -1,0 +1,73 @@
+---
+title: "Project Proposal"
+author: "Data Mine'R's"
+output: 
+  html_document:
+    css: style.css
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+date: "`r format(Sys.time(), '%d %B %Y')`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+## Group Members
+
+
+- Can AYTÖRE
+
+- Ebru GEÇİCİ
+
+- Mustafa KESER
+
+- Nazlı GÜL
+
+- Taha BAYAZ
+
+- Talha ÜNLÜ
+
+
+## Overview of the Data
+
+
+This dataset contains the features and prices of the cars sold online in Turkey, in 2020. This data is obtained from [Kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020) in order to make a comprehensive analysis about the online car market. The variables in the data set are as follows: date, brand, vehicle type, model year, fuel type, transmission, CCM, horse power, color, body type, seller, seller status, kilometers, and price.  Our main goal is to  make the best forecast of the prices using the variables in the data set.
+In the dataset we have 9044 observations with 15 features. You can find the glimpse of the data below.
+
+```{r data, warning = FALSE}
+car = read.csv("turkey_car_market.csv")
+car %>% glimpse()
+```
+
+
+## Plan
+
+
+Our tentative plan is as below:
+
+-	Cleaning, tidying and manipulating the data
+
+-	Using data visualizations to understand the data better
+
+-	Specifying the most related feature(s) with (the most effective feature(s) on) prices of a car
+
+-	Forecasting the car prices and creating a model
+
+-	To come up with a conclusion
+
+To be able to obey the plan, we will use some packages like;
+
+- dplyr
+
+- ggplot2
+
+- lubridate 
+
+- data.table
+
+- shiny etc.
