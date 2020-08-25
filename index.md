@@ -25,4 +25,4 @@ The project proposal is [here](https://pjournal.github.io/boun01g-data-mine-r-s/
 ## BONUS PROJECT
 
 ### R Package data.table 
-The data.table package is [here].(https://cran.r-project.org/web/packages/data.table/index.html)
+The data.table package is [here](https://cran.r-project.org/web/packages/data.table/index.html)
