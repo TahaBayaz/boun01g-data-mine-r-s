@@ -21,3 +21,8 @@ You can find the data from this [link](https://www.kaggle.com/alpertemel/turkey-
 ### Project Proposal
 
 The project proposal is [here](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Proposal.html)
+
+## BONUS PROJECT
+
+### R Package data.table 
+The data.table package is [here].(https://cran.r-project.org/web/packages/data.table/index.html)
