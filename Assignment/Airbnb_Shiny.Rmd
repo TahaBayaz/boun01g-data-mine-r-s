@@ -1,0 +1,175 @@
+---
+title: "Airbnb - Shiny"
+author: "R'm Balım Peteğim"
+date: "30 08 2020"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    theme: united
+    highlight: tango
+---
+
+<style>
+body{
+  color: #708090 ;
+  font-family: Calibri Light;
+  background-color: #F5F5F5;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, warning = FALSE, message = FALSE)
+```
+
+## Shiny Package
+
+shiny package provide interactive web implementations by using R programming language. By using this package, analysis can be made interactively as web applications. 
+Shiny application consists of two main parts:
+
+1. *User interface* (ui) part: This part provide the usage implementation and visualization of the analysis
+2. *Server* part: This part provide analysis and connection between analysis and user interfaces.
+
+### Packages and Preparaion of Data Set
+
+```{r library package loading}
+pti <- c("shiny", "tidyverse")
+pti <- pti[!(pti %in% installed.packages())]
+if(length(pti)>0){
+    install.packages(pti)
+}
+
+library(shiny)
+library(tidyverse)
+
+file <- if(file.exists("AB_NYC_2019.csv")) {
+    "AB_NYC_2019.csv"
+} else {
+    url('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/Assignment/AB_NYC_2019.csv')
+}
+airbnb <- read.csv(file)
+
+# Create price_group_column
+quant <- quantile(airbnb$price, seq(0, 1, 0.2))
+airbnb_price_group <- airbnb %>%
+    mutate(price_group = case_when(
+        price < quant[2] ~ "Very Low",
+        price < quant[3] ~ "Low",
+        price < quant[4] ~ "Medium",
+        price < quant[5] ~ "High",
+        TRUE ~ "Very High"
+    )) %>%
+    mutate(price_group = factor(price_group, levels = c("Very Low", "Low", "Medium", "High", "Very High")))
+
+# Get neighbourhood list
+neighbourhood <- airbnb %>% 
+    distinct(neighbourhood) %>% 
+    unlist(.)
+names(neighbourhood) <- NULL
+neighbourhood <- as.character(neighbourhood)
+```
+
+### Preparing User Interface (UI)
+
+In this part of the shiny app we create the user interface that provides the interactive implementations. That is by using slider input or select button, we can choose the different alternatives.
+In this example, we implement 
+
+```{r ui part}
+# Define UI for application that draws a scatter plot of the map
+ui <- fluidPage(
+    
+    # Application title
+    titlePanel("Compare Airbnb Prices"),
+    
+    h5("Group 2: Can AYTORE, Taha BAYAZ, Ebru GECICI, Nezihe Nazli GUL, Talha UNLU, Mustafa KESER\n"),
+    
+    sidebarLayout(
+        sidebarPanel(
+            
+            numericInput("minimum_nights", 
+                         label = "Minimum Nights:", 1),
+            
+            sliderInput("price", 
+                label = "Price:",
+                min = min(airbnb$price), 
+                max = max(airbnb$price), 
+                value = c(min(airbnb$price), median(airbnb$price)),
+                ticks = TRUE,
+                sep = ""),
+   
+            selectInput("room_type", 
+                label = "Room Type:", 
+                choices = unique(airbnb$room_type), 
+                selected = "Private room", 
+                multiple = TRUE),
+    
+            selectInput("neighbourhood", 
+                label = "Neighbourhood:", 
+                choices = c("All", neighbourhood), 
+                selected = "All", 
+                multiple = TRUE),
+            
+            sliderInput("listing_counts", 
+                label = "Minimum Host Listing:",
+                min = min(airbnb$calculated_host_listings_count),
+                max = max(airbnb$calculated_host_listings_count),
+                value = 1,
+                ticks = FALSE,
+                sep = "")
+        ),
+        
+        # Show a plot of the generated distribution
+        mainPanel(
+            plotOutput("AirbnbPlot")
+        )
+    )
+)
+```
+
+After the creating of the interface, we need to prepare analysis of the data set. This preparation is obtained by using server part. 
+
+### Preparing Server 
+
+```{r server}
+server <- function(input, output) {
+    
+    output$AirbnbPlot <- renderPlot({
+        
+        plot_df <- airbnb_price_group %>% 
+            filter(calculated_host_listings_count >= input$listing_counts) %>%
+            filter(minimum_nights >= input$minimum_nights) %>%
+            filter(price >= input$price[1] & price <= input$price[2]) %>%
+            filter(room_type %in% input$room_type)
+        
+        if(!("All" %in% input$neighbourhood)){
+            plot_df <- plot_df %>% filter(neighbourhood %in% input$neighbourhood)
+        }
+        
+        ggplot(plot_df, aes(x = latitude, y = longitude, color = price_group)) +
+            geom_point() +
+            theme_minimal() +
+            theme(legend.position = "bottom", 
+                  legend.title = element_text(colour="red", size=13, face="bold"),
+                  legend.text = element_text(size=12, face="italic"),
+                  plot.title = element_text(hjust = 0.5, size=24),
+                  axis.title=element_text(size=13,face="bold"),
+                  strip.text.x = element_text(size = 12, colour = "blue3")) +
+            facet_wrap(vars(neighbourhood_group), scales = "free") +
+            labs(title = "Airbnb Locations by Neighbourhood Group", x = "Latitute", y = "Longitude", color = "Price Ranges:")
+    })
+}
+```
+
+### Combination of the UI and Server
+
+```{r combaination}
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+
+
+This shiny can be updated by using different type of the buttons and other useful infomation can be examined by using [Shiny Cheatsheet](https://shiny.rstudio.com/images/shiny-cheatsheet.pdf).
+
+In this example the shiny app can be accessed by using **shiny:runApp('pjournal/boun01g-data-mine-r-s", subdir = "Assignment", ref = "gh-pages")**.

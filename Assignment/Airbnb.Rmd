@@ -1,0 +1,750 @@
+---
+title: "NYC Airbnb Data Assignment"
+author: "Data Mine’R’s"
+date: "8/26/2020"
+output:
+  html_document:
+    code_folding: hide    
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    theme: united
+    highlight: tango
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align="center")
+```
+
+<style>
+#TOC {
+ color: 
+ font-family: Calibri;
+ background-color:
+ border-color: darkred;
+}
+#header {
+ color: darkred;
+ font-family: Calibri;
+ background-color:
+}
+body {
+ font-family: Calibri;
+ }
+ 
+</style>
+
+
+## 1. Introduction
+### 1.1. What is Airbnb?
+
+Airbnb is an online marketplace since 2008, which connects people who want to rent their homes with people who are looking for accommodations in a particular location. It covers more than 81,000 cities and 191 countries worldwide. The company ,which is based in San Francisco, California, does not own any of the property listings, but it receives commissions from each booking like a broker. The name "Airbnb" comes from “air mattress Bed and Breakfast.” The Airbnb logo is called the Bélo, which is a short version for saying ‘Belong Anywhere’. Airbnb hosts list many different kinds of properties such as private rooms, apartments, shared rooms, houseboats, entire houses, etc. 
+
+### 1.2. Airbnb Dataset
+
+This dataset describes the listing activity and metrics in NYC for 2019. It includes all the necessary information in order to find out more about hosts, prices, geographical availability, and necessary information to make predictions and draw conclusions for NYC. The explanation of the variables in our data, which consists of 16 columns and 48,895 rows, will be made in the next part. The data used in this assignment is called **New York City Airbnb Open Data** which is downloaded from [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data). This public dataset is a part of Airbnb, and the original source can be found on this [website](http://insideairbnb.com/).
+
+### 1.3. Objectives
+
+In this assignment, we will perform an exploratory data analysis(EDA) in order to investigate each of the variables and also come up with a conclusion for the relationship between variables. The main purpose is to identify which variables affect the price mostly. In addition to these, we will explore which neighborhood groups and room types are the most popular ones among the guests, and which hosts are the most preferred ones. The processes during the assignment can be listed as below:
+
+ 1. Data Preprocessing
+ 2. Data Manipulation
+ 3. Data Visualization
+ 4. Interactive Shiny App
+
+## 2. Data Explanation
+ 
+### 2.1. Used Libraries
+
+We have used several packages during the analysis of the historical data of Airbnb in NYC in order to make data manipulation and visualization. The list of packages used in this assignment can be seen below:
+
+1. tidyverse
+2. lubridate
+3. tinytex
+4. wordcloud
+5. shiny
+6. knitr
+7. data.table
+8. tm
+9. SnowballC
+10. corpus
+
+```{r libraries}
+pti <- c("tidyverse", "lubridate", "tinytex", "wordcloud", "shiny", "knitr", "data.table", "tm", "SnowballC", "corpus")
+pti <- pti[!(pti %in% installed.packages())]
+if(length(pti)>0){
+    install.packages(pti)
+}
+
+library(tidyverse)
+library(lubridate)
+library(tinytex)
+library(wordcloud)
+library(shiny)
+library(knitr)
+library(data.table)
+library(tm)
+library(SnowballC)
+library(corpus)
+```
+
+### 2.2. Data
+
+#### Import Data
+
+After the importing data, to investigate variables in the data frame,i.e., *airbnb* data set, we use `glimpse()` function. 
+
+```{r data}
+file <- if(file.exists("AB_NYC_2019.csv")) {
+  "AB_NYC_2019.csv"
+} else {
+  url('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/Assignment/AB_NYC_2019.csv')
+}
+airbnb = read_csv(file)
+airbnb$last_review<-as.POSIXct(airbnb$last_review,format="%Y-%m-%d")
+airbnb %>% glimpse()
+```
+
+The `glimpse()` is a function of the `dplyr()`. If you do not use the dplyr() package, you can use `str()` function in the base R as an alternative. These two functions give the same results.
+
+```{r structure}
+airbnb %>% str()
+```
+
+#### Variables
+
+This dataset contains 16 features/variables about Airbnb listings within New York City. Below are the features with their descriptions:
+
+ 1. `id`: Listing ID (numeric variable)
+ 2. `name`: Listing Title (categorical variable) 
+ 3. `host_id`: ID of Host (numeric variable)
+ 4. `host_name`: Name of Host (categorical Variable)
+ 5. `neighbourhood_group`: Neighbourhood group that contains listing (categorical variable)
+ 6. `neighbourhood`: Neighbourhood group that contains listing (categorical variable)
+ 7. `latitude`: Latitude of listing (numeric variable)
+ 8. `longitude`: Longitude of listing (numeric variable)
+ 9. `room_type`: Type of the offered property (categorical variable)
+ 10. `price`: Price per night in USD (numeric variable)
+ 11. `minimum_nights`: Minimum number of nights required to book listing (numeric variable)
+ 12. `number_of_reviews`: Total number of reviews that listing has (numeric variable)
+ 13. `last_review`: Last rent date of the listing (date variable)
+ 14. `reviews_per_month`: Total number of reviews divided by the number of months that the listing is active (numeric variable)
+ 15. `calculated_host_listings_count`: Amount of listing per host (numeric variable)
+ 16. `availability_365`: Number of days per year the listing is active (numeric variable)
+ 
+### 2.3. Dublicate and Missing Data
+
+Our data set has almost 49.000 rows. Therefore it may include duplicate and/or missing values. To check them, we run the following codes. 
+
+```{r missing}
+NAValues <-
+  airbnb %>% select(everything()) %>% summarise_all(funs(sum(is.na(.))))
+```
+
+There are `r NAValues[14]` values missing in the dataset and all of them are in the `reviews_per_month` column.
+
+```{r duplicate}
+sum(duplicated(airbnb))
+```
+There is no duplicated row in this dataset.
+
+###  2.4. Summary of Data
+
+The summary of the data set can be seen below.
+
+```{r summary}
+airbnb %>% summary(.)
+```
+
+Before starting our analysis, we also want to check the outlier points in this dataset and we take the quantile 1 and 3 as references.
+
+```{r outliers}
+qtl1 = quantile(airbnb$price, 0.25)
+qtl3 = quantile(airbnb$price, 0.75)
+iqr = qtl3 - qtl1
+
+lower = qtl1 - iqr * 1.5
+upper = qtl3 + iqr * 1.5
+
+lower
+upper
+
+
+airbnb %>%
+  filter(price < lower | price > upper) %>%
+  top_n(10, price) %>%
+  select(neighbourhood_group, neighbourhood, price) %>%
+  arrange(desc(price)) %>%
+  kable(col.names = c("Neighbourhood Group", "Neighbourhood", "Price"))
+```
+
+```{r number of outlier, include =FALSE}
+NofO <- airbnb %>%
+  filter(price < lower | price > upper) %>%
+  select(neighbourhood_group, neighbourhood, price) %>%
+  nrow()
+NofO
+```
+ 
+When we analyze the lower and upper bound of the non-outliers data, the lower bound is obtained as minus 90. In our data set, as we consider the price of the airbnb room, there is no negative price. For this reason, we only consider the upper bound. The upper bound address the `r upper`. This means that, if the price value is greater than `r upper`, it becomes an outlier value.In this data set, there are `r NofO` outliers and the top ten with the highest price is listed as above.
+
+## 3. Exploratory Data Analysis
+
+### 3.1 Coordinates of Neighborhood Groups
+
+In order to see the location of airbnb rooms, we use coordinates (latitude and longitude) and color the neighborhood groups. Moreover, to see the density of the rooms in each neighborhood group, we use feature of the `geom_point()`, which is `alpha`. 
+
+```{r map}
+ggplot(airbnb, aes(latitude, longitude, color = neighbourhood_group)) +
+  geom_point(alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Coordinates of Airbnb Rooms According to the Neighbourhood Group",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Latitude",
+       y = "Longitude",
+       color = "Neighbourhood Group")
+```
+
+Bronx and Staten Island have less room than the others. The room densities of Brooklyn and Manhattan are distributed balanced in their regions. 
+
+
+### 3.2 Price Group Analyses of Neighborhood Groups
+
+By using quantile function, we divide price interval into five. Then, we define values in this intervals as very low, low, medium, high, very high. Then by using this categorical value, we prepare pie chart for each neighborhood group. 
+
+```{r price_group}
+quant = quantile(airbnb$price, seq(0, 1, 0.2))
+#quant
+
+airbnb_price_group = airbnb %>%
+  mutate(price_group = case_when(
+    price < quant[2] ~ "Very Low",
+    price < quant[3] ~ "Low",
+    price < quant[4] ~ "Medium",
+    price < quant[5] ~ "High",
+    TRUE ~ "Very High"
+  )) %>%
+  mutate(price_group = factor(price_group, levels = c("Very Low", "Low", "Medium", "High", "Very High")))
+
+airbnb_price_group %>%
+  group_by(neighbourhood_group, price_group) %>%
+  summarize(counter = n())  %>%
+  ggplot(., aes(x = '', y = counter, fill = price_group)) + 
+  geom_bar(width = 1, stat = "identity", position = "fill") +
+  coord_polar("y") +
+  theme_void() +
+  theme(plot.title = element_text(vjust = 0.5)) +
+  facet_wrap(~neighbourhood_group) +
+  labs(title = "Price Group Analyses of Neighborhood Groups",
+       subtitle = "2019 NYC Airbnb Data",
+       fill = "Price Group")
+```
+
+```{r test, eval=FALSE, include=FALSE}
+#we do not use this bar chart, for this reason we hide
+airbnb_price_group  %>%
+  group_by(neighbourhood_group, price_group) %>%
+  summarize(counter = n())  %>%
+  ggplot(., aes(x = neighbourhood_group, y = counter, fill = price_group)) +
+  geom_col() +
+  theme_minimal()
+```
+
+We summarize the results as follow:
+
+- The most of the rooms in Bronx, Queens and Staten Island has very low price. 
+- The rooms with very low, low and medium prices in the Brooklyn are almost distributed equal percentage. 
+- The very high price group in Manhattan has higher percentage than the other price groups.
+ 
+In the previous analysis, we try to define the percentage of the price group in each neighborhood group. To illustrate the price group change by location in each neighborhood group, the following plots are conducted.
+
+```{r price_group_map}
+airbnb_price_group %>%
+  ggplot(., aes(latitude, longitude, color = price_group)) +
+  geom_point() +
+  theme_minimal() +
+  facet_wrap(~neighbourhood_group, scales = "free") +
+  labs(title = "Spread of the Price Group In Each Neighborhood Group",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Latitude",
+       y = "Longtitude",
+       color = "Price Group")  
+```
+
+Very high price group in Manhattan concentrates in a particular area, although there are homogeneous spread of price groups in Bronx, Brooklyn, Queens, and Staten Island. 
+
+### 3.3 Minimum, Maximum and Average Price
+
+Before the detailed explanatory data analysis, we obtain average, minimum and maximum price for each neighborhood group. Moreover, we can add the average availability and average number of reviews. These values give general information about the airbnb rooms. 
+
+```{r describe_neighbourhood}
+airbnb %>% 
+  group_by(neighbourhood_group) %>%
+  summarise(min_price = min(price),
+            mean_price = round(mean(price), digits = 2),
+            max_price = max(price),
+            average_availability = round(mean(availability_365), digits = 2),
+            average_review = round(mean(number_of_reviews), digits = 2)) %>%
+  
+  select(neighbourhood_group, min_price, mean_price, max_price, average_availability, average_review ) %>%
+  arrange(desc(mean_price)) %>%
+  kable(col.names = c("Neighborhood Group", "Min Price", "Mean Price", "Max Price", "Average Availability", "Average Review"))
+
+```
+
+After the neighborhood group analysis, same preparation can be made by using room types. This table presents a more comprehensive analysis.  
+
+```{r describe_neighbourhood_room_type}
+airbnb %>% 
+  group_by(neighbourhood_group, room_type) %>%
+  summarise(min_price = min(price),
+            mean_price = round(mean(price), digits = 2),
+            max_price = max(price),
+            average_availability = round(mean(availability_365), digits = 2),
+            average_review = round(mean(number_of_reviews), digits = 2)) %>%
+  
+  select(neighbourhood_group,room_type, min_price, mean_price, max_price, average_availability, average_review ) %>%
+  kable(col.names = c("Neighborhood Group", "Room Type", "Min Price", "Mean Price", "Max Price", "Average Availability", "Average Review"))
+
+```
+
+
+### 3.4 The Most and Least Expensive Neighborhoods
+
+We can obtain the most and least expensive neighborhoods according to the mean price. To provide more understandable results, we use bar chart that illustrates the neighborhoods and its neighborhood groups.
+
+```{r max_mean_price,eval = FALSE, include = FALSE}
+airbnb %>%
+  group_by(neighbourhood) %>%
+  summarise(mean_price = mean(price)) %>%
+  top_n(10, mean_price) %>%
+  ggplot(., aes(x = reorder(neighbourhood, -mean_price) , y = mean_price, fill = mean_price)) +
+  geom_col() +
+  theme_minimal() +
+  geom_text(aes(label = format(mean_price,digits=3)), size=4, position = position_dodge(0.9),vjust = 5) +
+  theme(axis.text.x = element_text(angle = 45), legend.position = "right") +
+  labs(title = "Top 10 Most Expensive Neighbourhood", x = "Neighbourhood", y = "Mean price")
+```
+
+```{r expensive_neighbourhoods}
+airbnb %>%
+  group_by(neighbourhood_group,neighbourhood)%>%
+  summarise(mean_price = mean(price))%>%
+  arrange(desc(mean_price))%>%
+  head(15)%>%
+  ggplot(., aes(x = reorder(neighbourhood, -mean_price) , y = mean_price, fill = neighbourhood_group)) +
+  geom_col() +
+  theme_minimal() +
+  geom_text(aes(label = format(mean_price,digits=3)), size=4, position = position_dodge(0.9),vjust = 5) +
+  theme(axis.text.x = element_text(angle = 45), legend.position = "right") +
+  labs(title = "Top 15 Most Expensive Neighbourhoods", 
+       subtitle ="2019 NYC Airbnb Data",
+       x = "Neighbourhood", 
+       y = "Mean price",
+       fill = "Neighbourhood Group")
+```
+
+The most expensive neighborhood is Fort Wadsworth with the average price $800. The other inference obtained from the bar chart is that the most expensive rooms are located in Manhattan and Staten Island. Same analysis can be made for the least expensive neighborhoods.
+
+```{r min_mean_price, eval = FALSE, include = FALSE}
+airbnb %>%
+  group_by(neighbourhood) %>%
+  summarise(mean_price = mean(price)) %>%
+  top_n(-10, mean_price) %>%
+  ggplot(., aes(x = reorder(neighbourhood, mean_price) , y = mean_price, fill = mean_price)) +
+  geom_col() +
+  theme_minimal() +
+  geom_text(aes(label = format(mean_price,digits=2)), size=4, position = position_dodge(0.9),vjust = 10) +
+  theme(axis.text.x = element_text(angle = 45), legend.position = "right")  +
+  labs(title = "Top 10 Cheapest Neighbourhood", x = "Neighbourhood", y = "Mean price")
+```
+
+
+```{r least_price_neighbourhood}
+airbnb %>%
+  group_by(neighbourhood_group,neighbourhood)%>%
+  summarise(mean_price = mean(price))%>%
+  arrange(mean_price) %>%
+  head(15)%>%
+  ggplot(., aes(x = reorder(neighbourhood, mean_price) , y = mean_price, fill = neighbourhood_group)) +
+  geom_col() +
+  theme_minimal() +
+  geom_text(aes(label = format(mean_price,digits=3)), size=4, position = position_dodge(0.9),vjust = 5) +
+  theme(axis.text.x = element_text(angle = 45), legend.position = "right") +
+  labs(title = "Top 15 Least Expensive Neighbourhoods", 
+       subtitle ="2019 NYC Airbnb Data",
+       x = "Neighbourhood", 
+       y = "Mean price",
+       fill = "Neighbourhood Group")
+```
+
+The least expensive neighborhood is Bull's Head with the average price $47.3. The other inference obtained from the bar chart is that the least expensive rooms are located in Bronx and Staten Island. Moreover, there is no room belongs to Manhattan in the least expensive neighborhoods.
+
+These results show that, the price of rooms in Staten Island has a wide range. 
+
+### 3.5 The Most and Least Available Neighborhoods
+
+The neighborhoods are also investigated by using average room availability. In this part of the report, we give the most and least available neighborhoods according to the neighborhood groups. 
+
+```{r most_availability}
+airbnb %>%
+  group_by(neighbourhood, neighbourhood_group)%>%
+  summarise(mean_availability = mean(availability_365))%>%
+  arrange(desc(mean_availability))%>%
+  head(15)%>%
+  ggplot(., aes(x = reorder(neighbourhood,-mean_availability) , y = mean_availability, fill = neighbourhood_group)) +
+  geom_col() +
+  theme_minimal() +
+  geom_text(aes(label = format(mean_availability, digits = 3)), size=4, position = position_dodge(0.9),vjust = 5) +
+  theme(axis.text.x = element_text(angle = 45), legend.position = "right") +
+  labs(title = "Top 15 Most Available Neighbourhoods", 
+       subtitle ="2019 NYC Airbnb Data",
+       x = "Neighbourhood", 
+       y = "Mean availability",
+       fill = "Neighbourhood Group")
+```
+
+By using average availability of the rooms, the graph shows that Staten Island is the most available neighborhood group in the top 15. Manhattan, on the other hand, does not have any neighborhood in the top 15.   
+
+```{r least_availability}
+airbnb %>%
+  group_by(neighbourhood, neighbourhood_group)%>%
+  summarise(mean_availability = mean(availability_365))%>%
+  arrange(mean_availability)%>%
+  head(15)%>%
+  ggplot(., aes(x = reorder(neighbourhood,mean_availability) , y = mean_availability, fill = neighbourhood_group)) +
+  geom_col() +
+  theme_minimal() +
+  geom_text(aes(label = format(mean_availability, digits = 3)), size=4, position = position_dodge(0.9),vjust = 5) +
+  theme(axis.text.x = element_text(angle = 45), legend.position = "right") +
+  labs(title = "Top 15 Least Available Neighbourhoods", 
+       subtitle ="2019 NYC Airbnb Data",
+       x = "Neighbourhood", 
+       y = "Mean availability",
+       fill = "Neighbourhood Group")
+```
+
+There are many neighborhoods in the data set with zero availability. Bay Terrace (Staten Island) and New Dorp (Staten Island) do not have availability. 
+
+
+### 3.6 Room Type Analysis of Neighborhood Groups
+
+We use box plot to illustrate the log(price) of the different room types for each neighborhood group. 
+
+```{r room_type_vs_price}
+ggplot(airbnb, aes(x = room_type, y = price, fill = room_type)) + scale_y_log10() + 
+  geom_boxplot() +
+  theme_minimal() +
+  labs (x="", y= "Price") +
+  facet_wrap(~neighbourhood_group) +
+  facet_grid(.~ neighbourhood_group) +
+  theme(axis.text.x = element_text(angle = 90), legend.position = "right") +
+  labs(title = "Room Type Analysis of Neighborhood Groups",
+       subtitle = "2019 NYC Airbnb Data",
+       fill = "Room Type")  
+
+```
+
+Results show that:
+
+- For each neighborhood group, the order of the rooms according to descending price is entire home, private room, and shared room.
+- In each room type, Manhattan has highest average price. However, the price structure is similar among Brooklyn, Manhattan, and  Queens.
+- The outliers in Brooklyn and Manhattan are more than the others.
+
+
+### 3.7 Availability of Room Types According to the Neighborhood Groups
+
+To see the availability of different room types, we use `geom_jitter()` function and also check the density of each room type.
+
+```{r availability_of_room_types}
+airbnb %>%
+  ggplot(., aes(x = room_type, y = availability_365, color = room_type)) +
+  geom_jitter() +
+  theme_minimal() +
+  theme(legend.position="bottom", plot.title = element_text(vjust = 0.5)) + 
+  labs(title = "Availability of Room Types",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Room Type",
+       y = "Availability", 
+       color = " ") 
+```
+
+Entire home and private room have homogeneous distribution of availability, while the shared room accumulates on the edge of the intervals. To make more analysis, we also plot histogram. In this histogram, we want to analyze the availability of room types according to the neighborhood groups. It can be said that entire home/apt and private room can be reached every day in a year, whereas, shared room is not always accessible.  
+
+```{r availability_of_room_types2}
+airbnb %>%
+  ggplot(., aes(availability_365, fill = neighbourhood_group)) +
+  geom_histogram(bins = 10) +
+  facet_wrap(~room_type)+
+  theme_minimal() +
+  labs(title = "Availability Count According to Room Types",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Availability",
+       y = "Count",
+       fill = "Neighborhood Group") 
+```
+
+### 3.8 The Number of Rooms in Each Neighborhood Group
+
+There are almost 50000 rooms in our data set. As we want to find the number of rooms and compare with each other, first we draw a pie chart and then we summarize in the table to provide clear difference.
+
+```{r neighbourhood_group_vs_room_type}
+airbnb %>%
+  group_by(neighbourhood_group) %>%
+  summarise(count = n(), percentage = n()/nrow(airbnb)) %>%
+  ggplot(., aes(x = '', y = count, fill = neighbourhood_group)) + 
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y") +
+  theme_void() +
+  #geom_text(aes(label = scales::percent(round(percentage,2))), position = position_stack(vjust = 0.5)) +
+  theme(legend.position="bottom", plot.title = element_text(vjust = 0.5)) + 
+  labs(title = "The Comparison of the Number of Room",
+       subtitle = "2019 NYC Airbnb Data",
+       fill = "Neighborhood Group") 
+
+airbnb %>%
+  group_by(neighbourhood_group) %>%
+  summarise(count = n())%>%
+  transmute(neighbourhood_group,count, percentage = round(100*(count/nrow(airbnb)),digits = 2)) %>%
+  kable(col.names = c("Neighborhood Group", "Number", "Percentage")) 
+```
+
+The results illustrate that the rooms in Manhattan and Brooklyn constitute the huge majority, i.e., the sum of these two percentage is equal to 85.42.
+
+### 3.9 The Number of Rooms in Each Neighborhood Group By Using Room Type
+
+We analyze the number of room in each neighborhood group in previous graph. We can enlarge this analysis by using room type. 
+
+```{r neighbourhood_group_vs_room_type2}
+airbnb %>%
+  group_by(neighbourhood_group, room_type) %>%
+  summarize(room_type_count = n())  %>%
+  mutate(room_type_percentage = room_type_count / sum(room_type_count)) %>%
+  ggplot(., aes(x = neighbourhood_group, y = room_type_percentage, fill = room_type)) +
+  geom_bar(position = "fill",stat = "identity") +
+  scale_y_continuous(labels = scales::percent_format()) +
+  geom_text(aes(label = scales::percent(round(room_type_percentage, 4))),
+              position = position_stack(vjust = .5)) +
+  theme_minimal() +
+  labs(title = "The Number of Room Percentage for Different Room Type \n in Each Neighborhood Group",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Neighborhood Group",
+       y = "Percentage of Room Types", 
+       fill = "Room Type ")   
+```
+
+Following results can be obtained:
+
+- Private room has the largest percentage for the room type in NYC except Manhattan where the entire home is more preferred. 
+- In every neighborhood group, shared room type is the least preferable. When we compare the percentages belong to shared room, Bronx is on the top. 
+
+```{r data.table, eval = FALSE, include=FALSE}
+airbnb_DT = data.table(airbnb)
+airbnb_DT[price < 100 , .(maximum = max(price), minimum = min(price), avg = mean(price)), by = .(neighbourhood_group)]
+```
+
+### 3.10 Wordcloud 
+
+Like the numerical values, airbnb data includes verbal information such as `name`. By using this information, we can obtain the most used words in name column which describes the room features. 
+
+```{r wordcloud_function}
+wordcloudfunction = function(namesSparse, seed = 123){
+  set.seed(seed)
+  m2 <- as.matrix(namesSparse)
+  v2 <- sort(colSums(m2),decreasing=TRUE)
+  d2 <- data.frame(word = names(v2),freq=v2)
+
+  wordcloud(words = d2$word, freq = d2$freq, min.freq = 1,
+            max.words=200, random.order=FALSE, rot.per=0.35, 
+            colors=brewer.pal(8, "Dark2"))
+}
+```
+
+With the `wordcloudfunction`, we tried to make the wordcloud process reproducible. After geting the data frame of the frequencies, it shows the wordcloud plot. There will be some randomness in plotting. So, we set the seed before plotting.
+
+To be able to plot the wordcloud, we need to prepare the data. Like in the [Unit 5 of Analytics Edge](https://courses.edx.org/courses/course-v1:MITx+15.071x+3T2018/courseware/78a8f19e5e54432a938ae62dc0246780/9aa8c6526c104cbc946e510fb9bd05af/?activate_block_id=block-v1%3AMITx%2B15.071x%2B3T2018%2Btype%40sequential%2Bblock%409aa8c6526c104cbc946e510fb9bd05af), we need to apply these steps: 
+
+* Create a Corpus of the column (to be able to apply following processes)
+* Convert all words to lower case (so that Airbnb and airbnb will be the same word)
+* Remove all punctuations
+* Remowe stopping words (like 'a, an, the' which are not any valuable words)
+  ** In this part, we can remove additional words like 'airbnb', 'room' etc.
+* Create a document term matrix (which has the unique words in the column and all observations in the row. The values are the number of occurence of that word in that sentence.)
+* Stem the words (removing the suffix from the word. For example it turns "universal, university, universe" to "univers" or "apple, apples" to "appl"). We applied the first process without the stemming and applied the second process with stemming.
+* Reduce the sparsity of the matrix (we can remove a word that only occured in one sentence. With this step, we can apply the plotting process faster. But, we didn't choose to do that. To be able to remove sparse words, we can use the function `removeSparseTerms(frequencies, 0.995)`. 0.995 means the ratio of the word occured in all sentence.)
+
+
+
+```{r text_mining}
+corpus = VCorpus(VectorSource(airbnb$name)) 
+corpus = tm_map(corpus, content_transformer(tolower))
+corpus = tm_map(corpus, removePunctuation)
+corpus = tm_map(corpus, removeWords, c("airbnb", stopwords("english")))
+frequencies = DocumentTermMatrix(corpus)
+
+namesSparse = as.data.frame(as.matrix(frequencies))
+colnames(namesSparse) = make.names(colnames(namesSparse))
+
+wordcloudfunction(namesSparse)
+rm(frequencies, namesSparse)
+
+```
+As you can see in the plot, "bedroom", "room" and "private" words are the most common words in the `name` column. It means that most of the customers of Airbnb looks for the private rooms, so that these listings have these words in their names. As you can see from the plot that "brooklyn" and "manhattan" words are common in the name of the listings. We can infer that Brooklyn and Manhattan would have more listing than the others. 
+
+```{r text_mining2}
+corpus = tm_map(corpus, stemDocument) 
+frequencies = DocumentTermMatrix(corpus)
+
+namesSparse = as.data.frame(as.matrix(frequencies))
+colnames(namesSparse) = make.names(colnames(namesSparse))
+
+wordcloudfunction(namesSparse)
+rm(frequencies, namesSparse)
+```
+In this plot, we applied the stemming operation and then plot the words.As you can see, the word "apartment" is turned into "apart" and its occurence in the data becomes approximately the same with "privat" which stands for the "private" or "privates" words.
+
+```{r, include =FALSE, eval=FALSE}
+#we use for the validation of the data
+airbnb$host_id %>% unique() %>% length()
+sum(airbnb$calculated_host_listings_count)
+sum(unique(c(airbnb$host_id, airbnb$calculated_host_listings_count))[2])
+```
+
+### 3.11 Minimum Nights and Neighborhood Relationship
+
+In this part, we want to analyze the neighborhoods according to the average night of the `minimum_nights` variable. 
+
+```{r min_night_vs_neighbourhood}
+
+airbnb %>%
+  group_by(neighbourhood, neighbourhood_group)%>%
+  summarise(average_night = mean(minimum_nights))%>%
+  arrange(average_night) %>%
+  head(25)%>%
+  
+ggplot(., aes(y=reorder(neighbourhood, average_night), x= average_night, fill = neighbourhood_group)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Average Minimum Nights and Neighborhood Relationship",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Average Minimum Night",
+       y = "Neighborhood",
+       fill = "Neighborhood Group") 
+```
+
+When we search information about NYC to make more clear analysis by reading this [link](https://freetoursbyfoot.com/new-york-attractions/), we realize that the most of the landmarks are located in Manhattan. Thus, we expect the more staying in this place. To check the assumption, we order the neighborhoods according to their average minimum nights. The above plot shows that neighborhoods in Manhattan are not included daily hosting.
+
+### 3.12 The Most Popular Hosts in NYC Airbnb
+
+```{r calculated_host_listings_count, include=FALSE, eval=FALSE}
+#we use for the validation of the data
+airbnb %>%
+group_by(host_id) %>%
+mutate(count_id = n()) %>%
+arrange(desc(count_id)) %>% 
+  ungroup() %>%
+  select_all() %>%
+  filter(count_id != calculated_host_listings_count) #It is true
+```
+
+Like we find the most popular neighborhoods, we can also determine the most popular host in NYC according to listing counts. 
+
+```{r top_10_listings}
+top_10_listing_counts = airbnb %>%
+  group_by(host_id) %>%
+  summarise(listing_count = n()) %>%
+  arrange(desc(listing_count)) 
+
+id_name = distinct(airbnb[, c("host_id", "host_name")])
+
+top_10_listing_counts[1:10, ] %>%
+  left_join(., id_name, by = "host_id") %>%
+  ggplot(., aes(x = reorder(host_name, -listing_count) , y = listing_count, fill = host_name)) +
+  geom_col() +
+  theme_minimal() +
+  geom_text(aes(label = format(listing_count,digits=3)), size=4, position = position_dodge(0.9),vjust = 2) +
+  theme(axis.text.x = element_text(angle = 45), legend.position = "right") +
+  labs(title = "Top 10 Hosts in NYC",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Host Names", 
+       y = "Listing Counts",
+       fill = "Host Name")
+```
+
+### 3.13 The Average Number of Reviews in Each Neighboorhood
+
+The another analysis can be made by using number of reviews. 
+
+```{r mean_reviews}
+airbnb %>%
+  group_by(neighbourhood, neighbourhood_group) %>%
+  summarise(mean_review = mean(number_of_reviews)) %>%
+  arrange(desc(mean_review)) %>%
+  head(30) %>%
+  
+  ggplot(aes(x=mean_review, y = reorder(neighbourhood,mean_review), fill = neighbourhood_group)) +
+    geom_col() +
+  theme_minimal() +
+  labs(title = "Top 30 Neighborhood According to The Average Number of Reviews",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Average Number of Reviews", 
+       y = "Neighborhood",
+       fill = "Neighbourhood Group")
+```
+The results show that Bronx and Staten Island take the most of the reviews. On the other hand, there is no neighborhood from Manhattan in the top 30. 
+
+### 3.14 Last Review Analysis
+
+In 2019, the fluctuation of the average price is getting smaller after April. 
+
+```{r last_review}
+
+airbnb1 <- na.omit(airbnb)
+
+airbnb1 %>%
+  group_by(last_review) %>%
+  transmute(last_review, average_price = mean(price)) %>%
+  filter(lubridate::year(last_review) > 2018) %>%
+  
+  ggplot(aes(x=last_review, y = average_price)) +
+  geom_line(color = "#F08090") + 
+  theme_minimal() +
+  labs(title = "Average Price of Airbnb Room Last Reviewed Date",
+       subtitle = "2019 NYC Airbnb Data",
+       x = "Last Review Date", 
+       y = "Average Price")
+  
+```
+
+## 4. Conclusion
+
+In this study, we address the explanatory analysis of the airbnb data with several key features such as price, neighborhood, neighborhood group, room type, number of reviews, etc. By using these data, 
+
+- We obtain price and neighborhood relationship, i.e., Manhattan is the most expensive airbnb region when we compare the other neighborhood groups. On the other hand, the least expensive region is Bronx.
+- Another analysis is conducted by using room type. The results show that the entire home/apt type is more preferable and the others are private room and shared room, respectively. 
+- To make a different analysis instead of numerical analysis, we use Wordcloud which makes text mining. 
+- Number of reviews are also investigated to find which neighborhoods take the most review according to the neighborhood group. 
+
+The other analysis made to calculate following relationships:
+
+- The minimum nights and neighborhood relationship,
+- The most popular hosts in airbnb in 2019,
+- The average price and last review relationship in 2019,
+
+## References
+
+To prepare this report we use some directive notes, reports, and web pages that are listed below:
+
+- [Lecture Notes](https://boun-ie48a.github.io/) 
+- [Kaggle Data Set](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
+
+The Extra Notebooks in Kaggle
+
+- [Exploratory Data Analysis(EDA) of NYC Airb](https://www.kaggle.com/lion18/exploratory-data-analysis-eda-of-nyc-airb)
+- [NYC Airbnb EDA](https://www.kaggle.com/mburum/nyc-airbnb-eda)
+- [Analytics Edge](https://courses.edx.org/courses/course-v1:MITx+15.071x+3T2018/course/)

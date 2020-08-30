@@ -8,9 +8,13 @@
 
 ## ASSIGNMENT
 
-The Airbnb dataset can be downloaded from [here](https://storage.googleapis.com/kaggle-data-sets/268833%2F611395%2Fcompressed%2FAB_NYC_2019.csv.zip?GoogleAccessId=gcp-kaggle-com@kaggle-161607.iam.gserviceaccount.com&Expires=1598642124&Signature=qgshwFSOlgT6L9WsrqCg%2FBiQ34w36AERvwxLxbEbxOzwN4fbSEhJSG2c%2FM3cYZRjTR1slJ7iDMTA%2F1VjXtE9KdVCWWDKFOFauVeYiBrfWlp0r2bd%2B%2FwH9pRc0Y9bssOgnGfLs3UJQbAfhsohQ%2BgQCFOc0iqeuK%2B4oDcu%2Biljh8Ib%2FxcGc6oP59FAAGuuZtoWr0JbURlTX1g8sC1nct3AqqptnBXVYoDj3ZKLST4tspCK0xGTDQxpG5ez%2FG7WyHOsLcjXgw3y5tnzxaUe8Vz3FGVV5o6wYhVvHd5EGnG0dUJXGfUv9LjIZznWFJubkZ%2Bnna51W101imu6JZsGb8lKOA%3D%3D). Also you can get information about the data from the [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data) page
+In this assignment, the main purpose is to make an explanatory data analysis by using the Airbnb dataset which has neighbourhood/neighbourhood_group, price, room_type etc.
 
-To be able to reach the analysis of this data, you can click on this [link](https://www.google.com/)
+To be able to reach the analysis of this data, you can click on this [html link](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb.html) or this [pdf link](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb.pdf)
+
+Furthermore, you can reach interactive analysis of the data by using our [shiny app](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb_Shiny.html)
+
+If you want to make your own analysis, you can download and get information about the Airbnb data from the [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data) page
 
 ## PROJECT
 
