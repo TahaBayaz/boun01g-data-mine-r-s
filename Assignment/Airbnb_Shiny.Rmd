@@ -172,4 +172,4 @@ shinyApp(ui = ui, server = server)
 
 This shiny can be updated by using different type of the buttons and other useful infomation can be examined by using [Shiny Cheatsheet](https://shiny.rstudio.com/images/shiny-cheatsheet.pdf).
 
-In this example the shiny app can be accessed by using **shiny:runApp('pjournal/boun01g-data-mine-r-s", subdir = "Assignment", ref = "gh-pages")**.
+In this example the shiny app can be accessed by using **shiny::runGitHub("pjournal/boun01g-data-mine-r-s", subdir ="Assignment", ref ="gh-pages")**.
