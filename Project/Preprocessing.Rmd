@@ -1,0 +1,532 @@
+---
+title: "Data Preprocessing"
+author: "Data Mine’R’s"
+date: "31/08/2020"
+output:
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    theme: united
+    highlight: tango
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+  word_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", message = FALSE, warning = FALSE, error = FALSE)
+st = "2020 Turkey Online Car Market Data"
+```
+
+<style>
+#TOC {
+ color: 
+ font-family: Calibri;
+ background-color:
+ border-color: darkred;
+}
+#header {
+ color: darkred;
+ font-family: Calibri;
+ background-color:
+}
+body {
+ font-family: Calibri;
+ }
+ 
+</style>
+
+
+## TURKEY CAR MARKET 2020
+## 1. Data
+
+
+### 1.1 Objectives and Required Informations for the Analyses
+
+Before the analysis we need to upload required packages which are given in the below:
+
+1. tidyverse
+2. shiny
+3. ggplot2
+4. lubridate
+5. tm
+6. knitr
+7. tinytex
+
+```{r packages, message=FALSE, warning=FALSE}
+#Required packages
+pti <- c("data.table", "tidyverse", "lubridate", "tm", "knitr", "tinytex", "scales")
+pti <- pti[!(pti %in% installed.packages())]
+if(length(pti)>0){
+    install.packages(pti)
+}
+
+library(tidyverse)
+library(lubridate)
+library(tm)
+library(knitr)
+library(tinytex)
+library(data.table)
+library(scales)
+#library(kableExtra)
+```
+
+
+### 1.2 Preprocessing of the Data
+Our data set which we obtain from the [kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020) is created by using Turkish language. For this reason, before the explanatory analysis, we transform our name of the columns and variables to English. For this, we use following code. 
+
+```{r data from local, include=FALSE}
+carmarket = fread("turkey_car_market.csv")
+```
+
+```{r data from url, eval = FALSE}
+#data uploading
+carmarket = fread('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market.csv')
+```
+
+```{r colnames}
+#changing column names by using English meaning
+col_names = c('Date', 'Brand', 'Vehicle_Type_Group', 'Vehicle_Type', 'Model_Year', 'Fuel_Type', 'Gear', 'CCM', 'Horse_Power', 'Color', 'Body_Type', 'Seller', 'Seller_Status', 'Kilometers', 'Price')
+names(carmarket) = col_names
+```
+
+```{r translate}
+
+carmarket[, Date := dmy(Date)]
+
+carmarket = carmarket %>%
+                      #Brand type
+                      mutate(Brand = as.character(Brand),
+                             Brand = if_else(Brand == 'TofaÅŸ', 'Tofas', Brand),
+                             
+                             Brand = as.factor(Brand))%>%
+                      #Seller
+                      mutate(Seller = as.character(Seller),
+                             Seller = if_else(Seller == 'Galeriden', 'Galery', if_else(Seller == 'Sahibinden', 'Owner', 'Authority')),
+                             Seller = as.factor(Seller)) %>%  #unique(carmarket$Seller) #Turkish seller names are changed by English version
+  
+                      #fuel type
+                      mutate(Fuel_Type = as.character(Fuel_Type),
+                             Fuel_Type = if_else(Fuel_Type == 'Dizel', 'Diesel', 
+                                                 if_else(Fuel_Type == 'Benzin/LPG', 'Gasoline', 
+                                                         if_else(Fuel_Type == 'Hibrit', 'Hybrid', 'Electricity'))),
+                             Fuel_Type = as.factor(Fuel_Type)) %>%
+  
+                      #Gear
+                      mutate(Gear = as.character(Gear),
+                             Gear = if_else(Gear == 'Otomatik Vites', 'Automatic', 
+                                              if_else(Gear == 'YarÄ± Otomatik Vites', 'Semi Automatic', 'Manual')),
+                             Gear = as.factor(Gear))%>%
+  
+                      #Seller Status
+                      mutate(Seller_Status = as.character(Seller_Status),
+                             Seller_Status = if_else(Seller_Status == '2. El', '2nd Hand', 
+                                                 if_else(Seller_Status == 'Klasik', 'Classic', 
+                                                             if_else(Seller_Status == "0 km", "0 km", "Damaged"))),
+                             Seller_Status = as.factor(Seller_Status))%>%
+                      
+                      #Vehicle Type Group
+                      mutate(Vehicle_Type_Group = as.character(Vehicle_Type_Group),
+                             Vehicle_Type_Group = case_when(Vehicle_Type_Group == 'DiÄŸer' ~ 'Other',
+                                        Vehicle_Type_Group == 'A Serisi' ~ 'A Series',
+                                        Vehicle_Type_Group == '100 Serisi' ~ '100 Series',
+                                        Vehicle_Type_Group == '5 Serisi' ~ '5 Series',
+                                        Vehicle_Type_Group == 'S Serisi' ~ 'S Series',
+                                        Vehicle_Type_Group == '7 Serisi' ~ '7 Series',
+                                        Vehicle_Type_Group == '3 Serisi' ~ '3 Series',
+                                        Vehicle_Type_Group == '1 Serisi' ~ '1 Series',
+                                        Vehicle_Type_Group == '4 Serisi' ~ '4 Series',
+                                        Vehicle_Type_Group == '2 Serisi' ~ '2 Series',
+                                        Vehicle_Type_Group == '6 Serisi' ~ '6 Series',
+                                        Vehicle_Type_Group == 'Z Serisi' ~ 'Z Series',
+                                        Vehicle_Type_Group == 'M Serisi' ~ 'M Series',
+                                        Vehicle_Type_Group == '500 Ailesi' ~ '500 Family',
+                                        Vehicle_Type_Group == 'E Serisi' ~ 'E Series',
+                                        Vehicle_Type_Group == 'B Serisi' ~ 'B Series',
+                                        Vehicle_Type_Group == 'G Serisi' ~ 'G Series',
+                                        Vehicle_Type_Group == 'Å\u009eahin' ~ 'Sahin',
+                                        Vehicle_Type_Group == 'SerÃ§e' ~ 'Serce',
+                                        Vehicle_Type_Group == 'DoÄŸan' ~ 'Dogan',
+                                        TRUE ~ Vehicle_Type_Group),
+                              Vehicle_Type_Group = as.factor(Vehicle_Type_Group)) %>%
+  
+                        #Vehicle Type
+                        mutate(Vehicle_Type = as.character(Vehicle_Type),
+                               Vehicle_Type = case_when(Vehicle_Type == 'DiÄŸer' ~ 'Other',
+                                  Vehicle_Type == '1.6 BlueHDI 130HP INTENSIVE EAT6 7 KiÅŸilik' ~ '1.6 BlueHDI 130HP INTENSIVE EAT6 7 Seats',
+                                  Vehicle_Type == '1.3 CDTI Enjoy 111.YÄ±l' ~ '1.3 CDTI Enjoy 111',
+                                  Vehicle_Type == '1.3 GLS Otm.' ~ '1.3 GLS Auto',
+                                  Vehicle_Type == '1.4 120.YÄ±l' ~ '1.4 120',
+                                  Vehicle_Type == '1.4 CVVT Select Otm.' ~ '1.4 CVVT Select Auto',
+                                  Vehicle_Type == '1.4 CVVT Style Otm.' ~ '1.4 CVVT Style Auto',
+                                  Vehicle_Type == '0.9\n' ~ '0.9',
+                                  Vehicle_Type == '1.0 TFSI Sportback\n' ~ '1.0 TFSI Sportback',
+                                  Vehicle_Type == '1.0\n' ~ '1.0',
+                                  Vehicle_Type == '1.2 D-CVVT\n' ~ '1.2 D-CVVT',
+                                  Vehicle_Type == '1.2 DOHC\n' ~ '1.2 DOHC',
+                                  Vehicle_Type == '1.2 TSI Sport Tourer\n' ~ '1.2 TSI Sport Tourer',
+                                  Vehicle_Type == '1.2 TSI\n' ~ '1.2 TSI',
+                                  Vehicle_Type == '1.2 VTi\n' ~ '1.2 VTi',
+                                  Vehicle_Type == '1.2\n' ~ '1.2',
+                                  Vehicle_Type == '1.3 CDTI \n' ~ '1.3 CDTI',
+                                  Vehicle_Type == '1.3 Mjet\n' ~ '1.3 Mjet',
+                                  Vehicle_Type == '1.3 Multijet Active Plus\n' ~ '1.3 Multijet Active Plus',
+                                  Vehicle_Type == '1.3 Multijet Emotion Plus\n' ~ '1.3 Multijet Emotion Plus',
+                                  Vehicle_Type == '1.3 Multijet\n' ~ '1.3 Multijet',
+                                  Vehicle_Type == '1.3\n' ~ '1.3',
+                                  Vehicle_Type == '1.4 CRDi' ~ '1.4 CRDi',
+                                  Vehicle_Type == '1.4 CVVT\n' ~ '1.4 CVVT',
+                                  Vehicle_Type == '1.4 Fire\n' ~ '1.4 Fire',
+                                  Vehicle_Type == '1.4 HDi X\n' ~ '1.4 HDi X',
+                                  Vehicle_Type == '1.4 HDi\n' ~ '1.4 HDI',
+                                  Vehicle_Type == '1.4 ie SX\n' ~ '1.4 ie SX',
+                                  Vehicle_Type == '1.4 PopStar\n' ~ '1.4 PopStar',
+                                  Vehicle_Type == '1.4 T\n' ~ '1.4 T',
+                                  Vehicle_Type == '1.4 TDCi\n' ~ '1.4 TDCi',
+                                  Vehicle_Type == '1.4 TDI\n' ~ '1.4 TDI',
+                                  Vehicle_Type == '1.4 TSI Sport Coupe Cupra\n' ~ '1.4 TSI Sport Coupe Cupra',
+                                  Vehicle_Type == '1.4 Twinport\n' ~ '1.4 Twinport',
+                                  Vehicle_Type == '1.4\n' ~ '1.4',
+                                  Vehicle_Type == '1.5 CRDi \n' ~ '1.5 CRDi',
+                                  Vehicle_Type == '1.5 DCI Ambiance' ~ '1.5 Dci Ambiance',
+                                  Vehicle_Type == '1.5 dCi Ambiance\n' ~ '1.5 dCi Ambiance',
+                                  Vehicle_Type == '1.5 dCi Authentique' ~ '1.5 DCi Authentique',
+                                  Vehicle_Type == '1.5 DCi Extreme' ~ '1.5 dCi Extreme',
+                                  Vehicle_Type == '1.5 dCi Grandtour Authentique\n' ~ '1.5 dCi Grandtour Authentique Edition',
+                                  Vehicle_Type == '1.5 DCi Expression' ~ '1.5 dCi Expression',
+                                  Vehicle_Type == '1.5 dCi Grandtour Executive\n' ~ '1.5 dCi Grandtour Executive',
+                                  Vehicle_Type == '1.5 dCi GT-Line\n' ~ '1.5 dCi GT Line',
+                                  Vehicle_Type == '1.5 DCi Privilege' ~ '1.5 dCi Privilege',
+                                  Vehicle_Type == '1.5 DCI Tekna' ~ '1.5 dCi Tekna',
+                                  Vehicle_Type == '1.5 DCI Visia' ~ '1.5 dCi Visia',
+                                  Vehicle_Type == '1.5 dCi\n' ~ '1.5 dCi',
+                                  Vehicle_Type == '1.5 TDCi Titanium' ~ '1.5 TDCI Titanium',
+                                  Vehicle_Type == '1.5\n' ~ '1.5',
+                                  Vehicle_Type == '1.6 BlueHDI 130HP INTENSIVE EAT6 7 KiÅŸilik' ~ '1.6 BlueHDI 130HP INTENSIVE EAT6 7 Seats',
+                                  Vehicle_Type == '1.6 BlueHDI Active' ~ '1.6 BlueHDi Active',
+                                  Vehicle_Type == '1.6 CDTI  Grand Sport 120.YÄ±l' ~ '1.6 CDTI  Grand Sport 120',
+                                  Vehicle_Type == '1.6 CDTI  Cosmo' ~ '1.6 CDTI Cosmo',
+                                  Vehicle_Type == '1.6 CDTI  Business' ~ '1.6 CDTIBusiness',
+                                  Vehicle_Type == '1.6 CDTI  Design' ~ '1.6 CDTI Design',
+                                  Vehicle_Type == '1.6 CDTI  Elite' ~ '1.6 CDTI Elite',
+                                  Vehicle_Type == '1.6 CDTI  Enjoy' ~ '1.6 CDTI Enjoy',
+                                  Vehicle_Type == '1.6 CDTI  Sport' ~ '1.6 CDTI Sport',
+                                  Vehicle_Type == '1.6 CDTI\n' ~ '1.6 CDTI',
+                                  Vehicle_Type == '1.6 CR TDI Elegance\n' ~ '1.6 CR TDI Elegance',
+                                  Vehicle_Type == '1.6 CRDI Concept Plus' ~ '1.6 CRDi Concept Plus',
+                                  Vehicle_Type == '1.6 CRDi Elite\n' ~ '1.6 CRDi Elite',
+                                  Vehicle_Type == '1.6 D TÃ¼rkiye Paketi' ~ '1.6 D Turkey Package',
+                                  Vehicle_Type == '1.6 dCi Tekna Sky Pack\n' ~ '1.6 dCi Tekna Sky Pack',
+                                  Vehicle_Type == '1.6 e-HDi\n' ~ '1.6 e-HDi',
+                                  Vehicle_Type == '1.6 Enjoy 111. YÄ±l' ~ '1.6 Enjoy 111',
+                                  Vehicle_Type == '1.6 GDI\n' ~ '1.6 GDI',
+                                  Vehicle_Type == '1.6 HDi \n' ~ '1.6 HDi',
+                                  Vehicle_Type == '1.6 HDi\n' ~ '1.6 HDi',
+                                  Vehicle_Type == '1.6 HDi Confort' ~ '1.6 HDi Comfort',
+                                  Vehicle_Type == '1.6 HDI SX PK' ~ '1.6 HDi SX PK',
+                                  Vehicle_Type == '1.6 Invite Otm' ~ '1.6 Invite Auto',
+                                  Vehicle_Type == '1.6 LT\n' ~ '1.6 LT',
+                                  Vehicle_Type == '1.6 Mjet\n' ~ '1.6 Mjet',
+                                  Vehicle_Type == '1.6 Multijet Emotion Plus\n' ~ '1.6 Multijet Emotion Plus',
+                                  Vehicle_Type == '1.6 Multijet\n' ~ '1.6 Multijet',
+                                  Vehicle_Type == '1.6 Privelege' ~ '1.6 Privilege',
+                                  Vehicle_Type == '1.6 TÃ¼rkiye Paketi' ~ '1.6 Turkey Package',
+                                  Vehicle_Type == '1.6 TDCÄ° Ghia' ~ '1.6 TDCi Ghia',
+                                  Vehicle_Type == '1.6 TDCi\n' ~ '1.6 TDCi',
+                                  Vehicle_Type == '1.6 TDI \n' ~ '1.6 TDI',
+                                  Vehicle_Type == '1.6 TDI Ambiente' ~ '1.6 TDi Ambiente',
+                                  Vehicle_Type == '1.6 TDI Ambition Sportback\n' ~ '1.6 TDI Ambition Sportback',
+                                  Vehicle_Type == '1.6 TDI Attraction Sportback\n' ~ '1.6 TDI Attraction Sportback',
+                                  Vehicle_Type == '1.6 TDI Elegance' ~ '1.6 TDi Elegance',
+                                  Vehicle_Type == '1.6 TDI GreenLine Elegance\n' ~ '1.6 TDI GreenLine Elegance',
+                                  Vehicle_Type == '1.6 TDI Sportback\n' ~ '1.6 TDI Sportback',
+                                  Vehicle_Type == '1.6 TDI\n' ~ '1.6 TDI',
+                                  Vehicle_Type == '1.6 Ti-VCT\n' ~ '1.6 Ti-VCT',
+                                  Vehicle_Type == '1.6 VTES ES' ~ '1.6 VTEC ES',
+                                  Vehicle_Type == '1.6 XHT Cosmo\n' ~ '1.6 XHT Cosmo',
+                                  Vehicle_Type == '1.6\n' ~ '1.6',
+                                  Vehicle_Type == '1.7\n' ~ '1.7',
+                                  Vehicle_Type == '1.8\n' ~ '1.8',
+                                  Vehicle_Type == 'SerÃ§e' ~ 'Serce',
+                                  Vehicle_Type == 'Kartal 5 Vites' ~ 'Kartal 5 Transmissions',
+                                  Vehicle_Type == 'EVO 1.4 Fire Active' ~ 'EVO 1.4 Active Fire',
+                                  Vehicle_Type == 'Country 4x2\n' ~ 'Country 4x2',
+                                  Vehicle_Type == 'Å\u009eahin 5 vites' ~ 'Sahin 5 Transmissions',
+                                  Vehicle_Type == '4x2\n' ~ '4x2',
+                                  Vehicle_Type == '3.0 SDV6\n' ~ '3.0 SDV6',
+                                  Vehicle_Type == '200 BlueTEC AMG\n' ~ '200 BlueTEC AMG',
+                                  Vehicle_Type == '200 BlueEfficiency Avantgarde\n' ~ '200 BlueEfficiency Avantgarde',
+                                  Vehicle_Type == '2.5 Ã‡ift Kabin 4x4' ~ '2.5 Double Cabinet 4x4',
+                                  Vehicle_Type == '2.0i sDrive\n' ~ '2.0i sDrive',
+                                  Vehicle_Type == '2.0\n' ~ '2.0',
+                                  Vehicle_Type == '2.0 TDI\n' ~ '2.0 TDI',
+                                  Vehicle_Type == '2.0 TDCi\n' ~ '2.0 TDCi',
+                                  Vehicle_Type == '2.0 SRTi \n' ~ '2.0 SRTi',
+                                  Vehicle_Type == '2.0 Quattro\n' ~ '2.0 Quattro',
+                                  Vehicle_Type == '2.0 Ghia Otm.' ~ '2.0 Ghia Auto',
+                                  Vehicle_Type == '2.0 CRDi GLS\n' ~ '2.0 CRDi GLS',
+                                  Vehicle_Type == '2.0 24V LT Otm.' ~ '2.0 24V LT Auto',
+                                  Vehicle_Type == '180 CDI AMG\n' ~ '180 CDI AMG',
+                                  Vehicle_Type == '180 BlueEfficiency AMG Sport\n' ~ '180 BlueEfficiency AMG Sport',
+                                  Vehicle_Type == '180 BlueEfficiency Fascination\n' ~ '180 BlueEfficiency Fascination',
+                                  Vehicle_Type == '150 Otm.' ~ '150 Auto',
+                                  Vehicle_Type == '1.9 TDI\n' ~ '1.9 TDI',
+                                  Vehicle_Type == '1.8\n' ~ '1.8',
+                                  Vehicle_Type == '1.7\n' ~ '1.7',
+                                  Vehicle_Type == '1.6\n' ~ '1.6',
+                                  TRUE ~ Vehicle_Type),
+                            Vehicle_Type = as.factor(Vehicle_Type)) %>%
+  
+                  #CCM
+                  mutate(CCM = as.character(CCM),
+                         CCM = case_when(CCM == '1300 cc ve altÄ±' ~ '1300 cc and below',
+                                         CCM == '6001 cc ve Ã¼zeri' ~ '6001 cc and above',
+                                         CCM == 'Bilmiyorum' | CCM == '-' ~ 'Don\'t Know',
+                                         TRUE ~ CCM),
+                         CCM = factor(CCM, levels = c('Don\'t Know', '1300 cc and below', '1301-1600 cc', '1601-1800 cc', '1801-2000 cc', '2001-2500 cc', '2501-3000 cc', '3001-3500 cc', '3501-4000 cc', '4001-4500 cc', '4501-5000 cc', '5001-5500 cc', '5501-6000 cc', '6001 cc and above'))) %>%
+  
+                  #Horse Power
+                  mutate(Horse_Power = as.character(Horse_Power),
+                         Horse_Power = case_when(Horse_Power == '100 BG ve altÄ±' ~ '100 HP and below',
+                                                 Horse_Power == '50 BG ve altÄ±' ~ '100 HP and below',
+                                                 Horse_Power == '51-75 BG' ~ '100 HP and below',
+                                                 Horse_Power == '601 BG ve Ã¼zeri' ~ '601 HP and above',
+                                                 Horse_Power == '101-125 BG' ~ '101-125 HP',
+                                                 Horse_Power == '126-150 BG' ~ '126-150 HP',
+                                                 Horse_Power == '151-175 BG' ~ '151-175 HP',
+                                                 Horse_Power == '176-200 BG' ~ '176-200 HP',
+                                                 Horse_Power == '201-225 BG' ~ '201-225 HP',
+                                                 Horse_Power == '226-250 BG' ~ '226-250 HP',
+                                                 Horse_Power == '251-275 BG' ~ '251-275 HP',
+                                                 Horse_Power == '276-300 BG' ~ '276-300 HP',
+                                                 Horse_Power == '301-325 BG' ~ '301-325 HP',
+                                                 Horse_Power == '326-350 BG' ~ '326-350 HP',
+                                                 Horse_Power == '376-400 BG' ~ '376-400 HP',
+                                                 Horse_Power == '451-475 BG' ~ '451-475 HP',
+                                                 Horse_Power == '76-100 BG' ~ '100 HP and below',
+                                                 Horse_Power == 'Bilmiyorum' | Horse_Power == '-' ~ 'Don\'t Know',
+                                                 TRUE ~ Horse_Power),
+                         Horse_Power = factor(Horse_Power, levels = c('Don\'t Know', '100 HP and below', '101-125 HP', '126-150 HP', '151-175 HP', '176-200 HP', '201-225 HP', '226-250 HP', '251-275 HP', '276-300 HP', '301-325 HP', '326-350 HP', '376-400 HP', '451-475 HP', '601 HP and above'))) %>%
+  
+                  #Color
+                  mutate(Color = as.character(Color),
+                         Color = case_when(Color == 'Å\u009eampanya' ~ 'Champagne',
+                                           Color == 'AltÄ±n' ~ 'Gold',
+                                           Color == 'Amarant' ~ 'Amaranth',
+                                           Color == 'Bal Rengi' ~ 'Honey',
+                                           Color == 'Bej' ~ 'Beige',
+                                           Color == 'Beyaz' ~ 'White',
+                                           Color == 'Bordo' ~ 'Burgundy',
+                                           Color == 'DiÄŸer' ~ 'Other',
+                                           Color == 'FÃ¼me' ~ 'Smoked',
+                                           Color == 'GÃ¼mÃ¼ÅŸ' ~ 'Silver',
+                                           Color == 'GÃ¼mÃ¼ÅŸ Gri' ~ 'Silver Gray',
+                                           Color == 'Gri' ~ 'Gray',
+                                           Color == 'Ihlamur' ~ 'Linden',
+                                           Color == 'KÄ±rmÄ±zÄ±' ~ 'Red',
+                                           Color == 'Kahverengi' ~ 'Brown',
+                                           Color == 'Krem' ~ 'Cream',
+                                           Color == 'Kum Rengi' ~ 'Sand Color',
+                                           Color == 'Lacivert' ~ 'Dark Blue',
+                                           Color == 'Mavi' ~ 'Blue',
+                                           Color == 'Mor' ~ 'Purple',
+                                           Color == 'Pembe' ~ 'Pink',
+                                           Color == 'SarÄ±' ~ 'Yellow',
+                                           Color == 'Siyah' ~ 'Black',
+                                           Color == 'Turkuaz' ~ 'Turquoise',
+                                           Color == 'Turuncu' ~ 'Orange',
+                                           Color == 'YeÅŸil' ~ 'Green',
+                                           Color == 'Zeytin Gri' ~ 'Olive Gray',
+                                           Color == 'Eflatun' ~ 'Magenta',
+                                           TRUE ~ Color),
+                         Color = as.factor(Color)) %>%
+  
+                  #Body Type
+                  mutate(Body_Type = as.character(Body_Type),
+                         Body_Type = case_when(Body_Type == 'ÃœstÃ¼ AÃ§Ä±k / Cabriolet' ~ 'Open Top / Cabriolet',
+                                               Body_Type == 'Arazi AracÄ±' ~ 'Off-road Vehicle',
+                                               Body_Type == 'CamlÄ± Van' ~ 'Glass Van',
+                                               Body_Type == 'DiÄŸer' ~ 'Other',
+                                               Body_Type == 'Hatchback 3 KapÄ±' ~ 'Hatchback 3 Doors',
+                                               Body_Type == 'Hatchback 5 KapÄ±' ~ 'Hatchback 5 Doors',
+                                               Body_Type == 'Spor / Coupe' ~ 'Sport / Coupe',
+                                               TRUE ~ Body_Type),
+                         Body_Type = as.factor(Body_Type)) 
+
+
+```
+
+We can add the year and month of advertisements in `Year` and `Month` column.
+```{r Date}
+carmarket = carmarket[, Year:= year(Date)]
+carmarket = carmarket[, Month:= month(Date)]
+carmarket$Month = as.factor(carmarket$Month)
+setcolorder(carmarket, c("Date", "Year", "Month", col_names[2:15]))
+```
+
+
+### 1.3 Data Information 
+
+```{r glimpse}
+#To see column variable clearly
+carmarket %>% 
+  glimpse()
+
+```
+
+### 1.4 Handling "Don't Know" Values
+
+```{r null}
+sum(any(is.na(carmarket)))
+```
+
+When we look for null values, the data don't have any null values. But, there are some rows that contains *Don't Know* value in `CCM` and `Horse_Power` columns.
+
+```{r DK value counts}
+carmarket[CCM == 'Don\'t Know', .N]
+carmarket[Horse_Power == 'Don\'t Know', .N]
+```
+
+For `r carmarket[CCM == 'Don\'t Know', .N]` *Don't Know* values in `CCM` column, we can make imputation process. `CCM` is the volume of the motor of the car. It means that cars that have the same `Brand`, `Fuel_Type` and `Model_Year` values would have the same `CCM` value (we assume that all cars in the advertisements are produced for Turkey and even if these three variables covers almost 80% of the information about `CCM`, we will fill this column with respect to these three values.)
+
+```{r create new data.tables}
+keys = c("Brand", "Model_Year", "Fuel_Type")
+carmarket.CCM.DK = data.table(carmarket[CCM == 'Don\'t Know'], key = keys)
+carmarket.CCM.FULL = data.table(carmarket[CCM != 'Don\'t Know'], key = keys)
+carmarket.CCM.DK %>% glimpse()
+carmarket.CCM.FULL %>% glimpse()
+```
+
+We divided the data into 2 groups with respect to `CCM` column.
+
+```{r calculate mode}
+calculate_mode = function(x){
+  uniques = unique(x)
+  uniques[which.max(tabulate(match(x, uniques)))]
+}
+```
+
+We created a function to get the mode of the `CCM` column of data.table which has no *Don't Know* values in that column.
+
+```{r fill DK}
+for (i in 1: nrow(carmarket.CCM.DK)){
+  brand = carmarket.CCM.DK[i, Brand]
+  model_year = carmarket.CCM.DK[i, Model_Year]
+  fuel_type = carmarket.CCM.DK[i, Fuel_Type]
+  carmarket.CCM.DK[i, CCM := calculate_mode(carmarket.CCM.FULL[Brand == brand & Model_Year == model_year & Fuel_Type == fuel_type, .(Brand, Model_Year, Fuel_Type, CCM)])$CCM]
+}
+```
+
+We applied this function for all the rows of the `carmarket.CCM.DK` data.table.
+
+```{r count NAs}
+carmarket.CCM.DK[is.na(CCM), .N]
+```
+
+After this process, we filled `r carmarket.CCM.DK[!is.na(CCM), .N]` rows and couldn't fill `r carmarket.CCM.DK[is.na(CCM), .N]` rows. With respect to number of observations in the data frame, which is `r nrow(carmarket)`, we can drop these rows and add these two data.tables.
+
+```{r drop NAs and bind}
+carmarket = rbind(na.omit(carmarket.CCM.DK, 'CCM'), carmarket.CCM.FULL)
+```
+
+Now, we need to consider these steps for `Horse_Power`. `Horse_Power` shows the measurement unit of power that engine has. It means that cars that have the same `Brand` and `CCM` values would have the same `CCM` value. We can do the same step in one chunk.
+
+```{r HP DKs, include=FALSE}
+keys = c("Brand", "CCM")
+carmarket.HP.DK = data.table(carmarket[Horse_Power == 'Don\'t Know'], key = keys)
+carmarket.HP.FULL = data.table(carmarket[Horse_Power != 'Don\'t Know'], key = keys)
+carmarket.HP.DK %>% glimpse()
+carmarket.HP.FULL %>% glimpse()
+
+for (i in 1: nrow(carmarket.HP.DK)){
+  brand = carmarket.HP.DK[i, Brand]
+  ccm = carmarket.HP.DK[i, CCM]
+  carmarket.HP.DK[i, Horse_Power := calculate_mode(carmarket.HP.FULL[Brand == brand & CCM == ccm, .(Brand, CCM, Horse_Power)])$Horse_Power]
+}
+
+carmarket.HP.DK[is.na(Horse_Power), .N]
+```
+
+After this process, we filled `r carmarket.HP.DK[!is.na(Horse_Power), .N]` rows and couldn't fill `r carmarket.HP.DK[is.na(Horse_Power), .N]` rows. With respect to number of observations in the data frame, which is `r nrow(carmarket)`, we can drop these rows and add these two data.tables.
+
+```{r drop HP NAs and bind,include=FALSE, eval=FALSE}
+carmarket = rbind(na.omit(carmarket.HP.DK, 'Horse_Power'), carmarket.HP.FULL)
+```
+
+```{r summary}
+summary(carmarket)
+```
+
+### Check Accuracy of Values 
+
+Before starting any of the analysis, we need to check the accuracy of values. For example, we can look for the `Price` column that has negative values.
+
+```{r price accuracy}
+carmarket[Price < 0, .N]
+```
+
+So, we can say that the values in the `Price` column are valid values. 
+We can look for the `Kilometers` column that has negative values.
+
+```{r km accuracy}
+carmarket[Kilometers < 0, .N]
+```
+
+So, we can say that the values in the `Kilometers` column are valid values. 
+We can look for the `Model_Year` column that has values that can not be a year.
+
+```{r year accuracy}
+sort(unique(carmarket[, Model_Year]))
+carmarket[Model_Year > year(Date), .N]
+```
+
+So, we can say that the values in the `Model_Year` column are valid values and model years of all cars in the advertisements are appropriate with dates of advertisements.
+We can check for the advertisements whose `Seller_Status` is *2nd Hand* and `Kilometers` is *0*.
+
+```{r 2nd Hand 0 km accuracy}
+carmarket[Seller_Status == "2nd Hand" & Kilometers == 0, .N]
+carmarket[Seller_Status == "2nd Hand" & Kilometers == 0, Seller]
+```
+
+There are `r length(carmarket[Seller_Status == "2nd Hand" & Kilometers == 0, Seller])` advertisements meaning that the `Seller` (`r unique(carmarket[Seller_Status == "2nd Hand" & Kilometers == 0, Seller])`) has a secondhand car, which means the car is used, but it is not driven any kilometers. In practice it is not a common case but we can assume that it can be correct.
+
+We can check for the highest 10 price in the dataset.
+
+```{r order price}
+setorder(carmarket, -Price) %>% head(10)
+```
+
+When we look at the first row we see a car whose horse power is 100 HP or below, CCM is 1300 CC or below, secondhand, kilometer is 140000 and brand is Hyundai i20. Its price is more than 5m Turkish Liras. When we search for some advertisements about the model, we come up with prices at most 100000 Turkish Liras. In reality this row is not possible since the `Seller` does not want to show-off with his/her car. So, we will remove that row from the data.
+
+```{r drop Hyundai i20}
+carmarket = carmarket[Price != 5086500,]
+```
+
+```{r IQR}
+qtl1 = quantile(carmarket[, Price], 0.25)
+qtl3 = quantile(carmarket[, Price], 0.75)
+
+iqr = qtl3 - qtl1
+
+lower = qtl1 - 1.5 * iqr
+upper = qtl3 + 1.5 * iqr
+
+carmarket[Price > upper | Price < lower, .SD]
+```
+
+There are `r carmarket[Price > upper | Price < lower, .N]` outliers in the data with respect to `Price` values. This is normal, because there are many low-segment or mid-segment cars in the advertisements and these outliers are some of the high-segment car companies. There is nothing wrong with this data.
+
+We can check for the combination `Vehicle_Type` and `Vehicle_Type_Group` columns whether both of them are matching with each other. But, it will take more time than the value it would add.
+
+Now, our data is ready for making further analysis. So, we need to export the data for our Rmarkdown.
+
+```{r data export, eval = FALSE}
+write.csv(carmarket, file = "turkey_car_market_EDA.csv")
+```
+

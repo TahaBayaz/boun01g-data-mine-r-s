@@ -1,0 +1,585 @@
+---
+title: "Explanatory Data Analysis"
+author: "Data Mine’R’s"
+date: "31/08/2020"
+output:
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    theme: united
+    highlight: tango
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+  word_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", message = FALSE, warning = FALSE, error = FALSE)
+st = "2020 Turkey Online Car Market Data"
+```
+
+<style>
+#TOC {
+ color: 
+ font-family: Calibri;
+ background-color:
+ border-color: darkred;
+}
+#header {
+ color: darkred;
+ font-family: Calibri;
+ background-color:
+}
+body {
+ font-family: Calibri;
+ }
+ 
+</style>
+
+## 1. Import Packages And Data
+
+We need to load the packages that we will use
+
+```{r packages, message=FALSE, warning=FALSE}
+#Required packages
+pti <- c("data.table", "tidyverse", "tm", "knitr", "tinytex", "scales")
+pti <- pti[!(pti %in% installed.packages())]
+if(length(pti)>0){
+    install.packages(pti)
+}
+
+library(tidyverse)
+library(tm)
+library(knitr)
+library(tinytex)
+library(data.table)
+library(scales)
+```
+
+Before making any further analysis, we need to import the data that we preprocessed the data.
+
+```{r data from local, include=FALSE}
+carmarket = fread("turkey_car_market_EDA.csv")
+```
+
+```{r data from url, eval = FALSE}
+#data uploading
+carmarket = fread('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market_EDA.csv')
+```
+
+## 2. Explanatory  Data Analysis - EDA
+
+### Time Series Analyses
+
+```{r year count}
+carmarket %>%
+  group_by(Year) %>%
+  summarise(count = n()) %>%
+  arrange(Year) %>%
+  select(Year, count)%>%
+  kable(col.names = c("Year", "Count")) 
+
+```
+
+In the description of the dataset, it is told that this dataset contains the advertisements in 2020 but there are two rows which are from 2019. We will consider that it is not a problem.
+
+```{r month count}
+carmarket %>%
+  group_by(Month) %>%
+  summarise(count = n()) %>%
+  ggplot(., aes(x = Month, y = count)) +
+  geom_col() +
+  theme_minimal() +
+  labs(title = "Number of Advertisements Over Months",
+       subtitle = st,
+       x = "Month",
+       y = "Number of Advertisement")
+```
+
+When we look at the bar plot, there are advertisement whose month is changing from march to june and also there are two advertisements from december of 2019. There are more advertisements in april respect to other months. We can look for the daily count of these advertisements.
+
+```{r date count}
+carmarket %>%
+  group_by(Date) %>%
+  summarise(count = n()) %>%
+  ggplot(., aes(x = Date, y = count)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Number of Advertisements Over Days",
+       subtitle = st,
+       x = "Day",
+       y = "Number of Advertisement")
+```
+
+There is a big jump in two days of april. So, we can get that with these commands:
+
+```{r date count table}
+carmarket %>%
+  group_by(Date) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  select(Date, count)%>%
+  kable(col.names = c("Date", "Count"))
+```
+
+When we search for that increase in 17 - 18.04.2020 dates, there was an information about the sales that march, april and may have most of sales in a year (You can find this information from this [link](https://www.ikinciyeni.com/blog/iyi-surucu-rehberi-detay/araba-almak-icin-en-iyi-zaman)). So, this pick is an expected pick.
+
+We can make a plot of sales respect to `Brand`.
+
+```{r date_brand vs count}
+carmarket %>%
+  group_by(Date, Brand) %>%
+  summarise(count = n()) %>%
+  ggplot(., aes(x = Date, y = count, color = Brand)) +
+  geom_line() +
+  labs(title = "Seller Status Distribution of Sellers",
+       subtitle = st,
+       x = "Date",
+       y = "Number of Advertisements",
+       color = "Brands")
+```
+In the pick period we see that there is a type of brand that is mostly in the advertisement. We can inspect which brand it is.
+
+```{r date_brand vs count table}
+carmarket %>%
+  group_by(Date, Brand) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  head(10) %>%
+  select(Date, Brand, count)%>%
+  kable(col.names = c("Date", "Brand", "Count"))
+```
+
+*Renault* is been in advertisements more than 6 times of the next brand. The reasons of this situation can be listed like below:
+
+1. The data may not be collected randomly. (We don't have any information about the collection of the sample. Maybe, there was a **sample selection bias**, that the data is sorted with respect to a feature and selected the top 9044 rows of them or this data is collected from only one platform and other platforms are discarded. Also, there are some popular car companies in Turkey market but they are not in the dataset like *Toyota*, this can be the sign of the sample selection bias. But, to be able to make an analysis, we will assume that this process is done randomly.)
+2. In the internet advertisements, Renault is the most appealing brand among others due to strategies of companies of brands (which also we should assume that there is no possibility like that)
+3. Prices of Renault's car can be affordable respect to other cars of brands because of high price increase in taxes.
+4. Renault is the most popular `Brand` in online Turkey market because the company produces cars for diverse segments of consumers which helps to reach higher number of sales.
+
+```{r Renault count and price}
+carmarket_brand = carmarket %>%
+  group_by(Brand) %>%
+  summarise(count = n(), min_price = min(Price), max_price = max(Price), avg_price = mean(Price), median_price = median(Price))
+  
+carmarket_brand  %>%
+  arrange(desc(count)) %>%
+  select(Brand, count)%>%
+  kable(col.names = c("Brand", "Count"))
+
+carmarket_brand %>%
+  arrange(avg_price)%>%
+  select(Brand, avg_price, median_price, min_price, max_price)%>%
+  kable(col.names = c("Brand", "Average Price", "Median Price", "Minimum Price", "Maximum Price"))
+```
+
+When we examine these two tables, we see that there are cheaper cars in the dataset. So, the third option is not true. So, we can assume that Renault is one of the online market leaders in the Turkey market. For the diversity of segments, we need too plot the prices of Renault.
+
+```{r Renault diversity}
+carmarket[Brand == 'Renault', .(Price)] %>%
+  ggplot(., aes(y = Price)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Price Diversity of Renault",
+       subtitle = st,
+       y = "Price") +
+  scale_y_continuous(labels = comma)
+```
+
+We can see from the plot that Renault has cars for every segment in Turkey market. This could make them to be very popular in the market.
+
+
+###  The Most and Least Popular Car Brands
+
+```{r top 15 popular brands}
+carmarket %>%
+  count(Brand, sort=TRUE) %>%
+  mutate(percentage = 100 * n / sum(n)) %>%
+  head(15) %>%
+  ggplot(.,aes(x=percentage, y=reorder(Brand,percentage),fill=percentage)) +
+  geom_col() +
+  geom_text(aes(label = paste(format(percentage,digits=1), "%")), size=4, position = position_stack(vjust = 0.5)) +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(vjust = 0.5)) +
+  labs(x = "Percentages",
+       y = "Car Brands",
+       title = "Top 15 Popular Brands",
+       subtitle = st)
+```
+
+```{r top 15 less popular brands}
+carmarket %>%
+  count(Brand, sort=TRUE) %>%
+  mutate(percentage = 100 * n / sum(n)) %>%
+  tail(15) %>%
+  ggplot(.,aes(x=percentage, y=reorder(Brand,percentage), fill=percentage)) +
+  geom_col() +
+  geom_text(aes(label = paste(format(percentage,digits=1), "%")), size=4, position = position_stack(vjust = 0.5)) +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(vjust = 0.5)) +
+  labs(x = "Percentages",
+       y = "Car Brands",
+       title = "Less Popular Brands",
+       subtitle = st)
+```
+
+
+### Price Analysis of Car Brands
+
+```{r price group brand}
+quant = quantile(carmarket$Price, seq(0, 1, 0.2))
+
+carmarket_price_group <- carmarket %>%
+  mutate(price_group = case_when(
+    Price < quant[2] ~ "Very Low",
+    Price < quant[3] ~ "Low",
+    Price < quant[4] ~ "Medium",
+    Price < quant[5] ~ "High",
+    TRUE ~ "Very High"
+  )) %>%
+  mutate(price_group = factor(price_group, levels = c("Very Low", "Low", "Medium", "High", "Very High")))
+
+carmarket_price_group %>%
+  group_by(Brand, price_group) %>%
+  summarize(counter = n()) %>%
+  mutate(percentage = 100 * counter / sum(counter)) %>%
+  ggplot(., aes(x = '', y = counter, fill = price_group)) + 
+  geom_bar(width = 1, stat = "identity", position = "fill") +
+  coord_polar("y") +
+  theme_void() +
+  theme(plot.title = element_text(vjust = 0.5)) +
+  facet_wrap(~Brand) +
+  labs(title = "Price Group Analyses of Car Brand",
+       subtitle = st,
+       fill = "Price Group")
+```
+
+
+```{r brand summarize}
+carmarket %>%
+  group_by(Brand) %>%
+  summarize(MinPrice = min(Price),
+            Average_Price = round(mean(Price)),
+            MaxPrice = max(Price)) %>%
+  select(Brand,MinPrice, Average_Price,MaxPrice) %>%
+  arrange(desc(Average_Price)) %>%
+  head(10) %>%
+  kable(col.names = c("Brand",  "Minimum Price", "Average Price", "Maximum Price"))
+
+```
+
+
+```{r brand vs mean price}
+carmarket %>%
+  group_by(Brand) %>%
+  summarise(Average_Price = mean(Price)) %>%
+  arrange(desc(Average_Price))%>%
+  
+  ggplot(., aes(y=reorder(Brand,Average_Price), x = Average_Price, fill = Brand)) +
+    geom_col() +
+    theme_minimal() +
+    labs(title = "Order of the Car Brand According to \nTheir Average Price",
+         subtitle = st,
+         x = "Average Price",
+         y = "Brands")
+
+  
+```
+
+
+### Price Analysis By Fuel Type
+
+```{r fuel_type vs mean price, include=FALSE}
+carmarket %>%
+  group_by(Fuel_Type) %>%
+  summarize(Average_Price = mean(Price)) %>%
+  
+  ggplot(.,aes(x=reorder(Fuel_Type, -Average_Price), y = Average_Price, fill= Fuel_Type)) +
+    geom_col() +
+    theme_minimal() +
+    labs(title = "Average Price According to the Fuel Type",
+         subtitle = st, 
+         x = "Fuel Type",
+         y = "Average Price",
+         Fill = "Fuel Type")
+  
+  
+```
+
+
+```{r fuel_type vs price}
+carmarket %>%
+  group_by(Fuel_Type) %>%
+
+  ggplot(.,aes(x=Fuel_Type, y = Price, fill= Fuel_Type)) +
+    geom_boxplot() +
+    theme_minimal() +
+    scale_y_log10() +
+    labs(title = "Prices According to the Fuel Type",
+         subtitle = st, 
+         x = "Fuel Type",
+         y = "Price",
+         Fill = "Fuel Type")
+  
+  
+```
+
+### Price Analysis with Gear and Fuel Type
+
+```{r}
+carmarket %>%
+  group_by(Fuel_Type) %>%
+  mutate(Average_Price = mean(Price)) %>%
+  
+  ggplot(.,aes(x=reorder(Fuel_Type, -Average_Price), y = Average_Price, fill= Fuel_Type)) +
+    geom_col() +
+    facet_wrap(~Gear) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90), legend.position = "none") +
+    scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+    labs(title = "Average Price According to the Fuel Type for Different Gear Type",
+         subtitle = st, 
+         x = "Fuel Type",
+         y = "Average Price",
+         Fill = "Fuel Type")
+```
+
+
+```{r fuel_type vs percentage}
+carmarket %>%
+  group_by(Fuel_Type) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = 100*round(count/sum(count),3)) %>%
+  
+  ggplot(., aes(x = '', y = count, fill = Fuel_Type)) + 
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y") +
+  theme_void()+
+  theme(plot.title = element_text(vjust = 0.5)) +
+  geom_text(aes(label = paste(format(percentage,digits=2), "%")), size=4, position = position_stack(vjust = 0.5)) +
+  labs(title = "Percentages of Fuel Types",
+       subtitle = st,
+       fill = "Fuel Types")
+
+```
+
+```{r fuel_type summarize}
+carmarket %>%
+  group_by(Fuel_Type) %>%
+  summarize(count = n(),
+            Min_Price = min(Price),
+            Average_Price = mean(Price),
+            Max_Price = max(Price)) %>%
+  mutate(percentage = 100*round(count/sum(count),3))%>%
+  arrange(desc(percentage)) %>%
+  select(Fuel_Type, count,  percentage, Min_Price, Average_Price, Max_Price ) %>%
+  kable(col.names = c("Fuel Type", "Number of Ad.", "Percentage", "Minimum Price", "Average Price", "Maximum Price")) 
+```
+
+```{r, echo = FALSE ,include=FALSE}
+carmarket %>%
+  filter(Model_Year > 2000 & Brand %in% c("Porsche", "Land Rover", "Jaguar", "Maserati", "Mercedes")) %>%
+  ggplot(., aes(x = as.numeric(Model_Year), y=Price, color = Brand)) +
+    geom_point() +
+    theme_minimal() +
+    labs(title = "Order of the Car Brand According to \nTheir Average Price",
+         subtitle = st,
+         y = "Price",
+         x = "Model Year")
+####???????????????????????????Line for mean
+  
+```
+
+```{r 2nd Hand km vs price, include=FALSE}
+carmarket%>%
+  filter(Seller_Status == '2nd Hand') %>%
+  ggplot(.,aes(x=Kilometers, y=Price, color=Seller)) +
+    geom_point(alpha=0.6) +
+    scale_x_log10(labels = function(x) format(x, scientific = FALSE)) +
+    scale_y_log10(labels = function(x) format(x, scientific = FALSE)) +
+    expand_limits(x = 0, y = 0) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90), legend.position = "right")
+```
+
+```{r, include=FALSE}
+MinKm = min(carmarket$Kilometers)
+MaxKm = max(carmarket$Kilometers)
+
+carmarket %>%
+  #filter(Brand == "Renault") %>%
+  mutate(Kilometers = (Kilometers-MinKm)/(MaxKm-MinKm))%>%
+  ggplot(.,aes(x=Brand, y=Price, fill = Kilometers))+
+  geom_tile()+
+  scale_fill_gradient(low="white", high="darkslateblue") +
+  scale_y_log10()
+  
+```
+
+### Price Analysis By Gear 
+```{r gear vs price}
+carmarket %>%
+  ggplot(., aes(x = Gear, y = Price, color = Gear)) +
+  geom_jitter() +
+  theme_minimal() +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+```
+
+### Price Analysis By Horse Power 
+
+```{r}
+#Beygir gücünün factro sırasına göre sıralayalım
+carmarket %>%
+  group_by(Horse_Power) %>%
+  summarize(mean_price = mean(Price)) %>%
+  
+  ggplot(., aes(x=mean_price, y = Horse_Power, fill = Horse_Power)) +
+  geom_col() +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(title = "Average Price According to the Horse Power",
+       subtitle = st, 
+       x = "Average Price",
+       y = "Horse Power")
+```
+
+### Price Analysis By Body Type
+```{r}
+carmarket %>%
+  group_by(Body_Type) %>%
+  summarize(Average_Price = mean(Price)) %>%
+  
+  ggplot(.,aes(x=reorder(Body_Type, -Average_Price), y = Average_Price, color= Body_Type)) +
+    geom_point(size=7) +
+    geom_segment(aes(x=Body_Type,
+                     xend=Body_Type,
+                     y=0,
+                     yend=Average_Price))+
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90), legend.position = "none")+
+        labs(title = "Average Price According to the Body Type",
+         subtitle = st, 
+         x = "Body Type",
+         y = "Average Price",
+         Fill = "Body Type")
+```
+
+### Price Analysis By CCM
+
+```{r}
+carmarket%>% 
+  group_by(CCM)%>% 
+  ggplot(., aes(x=CCM, y=Price, fill=CCM))+
+  geom_boxplot()+
+  theme_minimal()+
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  scale_y_log10()+
+  theme(axis.text.x = element_text(angle = 90), legend.position = "none")+
+    labs(title = "Average Price According to CCM",
+         subtitle = st, 
+         x = "CCM",
+         y = "Price",
+         Fill = "CCM")
+```
+
+
+### Seller and Seller Status Relationship 
+
+```{r seller_status dist}
+carmarket %>%
+  group_by(Seller,Seller_Status) %>%
+  summarise(count=n()) %>%
+  mutate(percentage = 100*count/sum(count)) %>%
+  
+  ggplot(., aes(x = '', y = count, fill = Seller_Status)) +
+  geom_bar(width = 1, stat = "identity", position = "fill") +
+  coord_polar("y") +
+  theme_void() +
+  theme(plot.title = element_text(vjust = 0.5)) +
+  facet_wrap(~Seller) +
+  labs(title = "Seller Status Distribution of Sellers",
+       subtitle = st,
+       fill = "Seller Status")
+```
+
+```{r seller_status dist table}
+carmarket %>%
+  group_by(Seller,Seller_Status) %>%
+  summarise(count=n()) %>%
+  mutate(percentage = 100*count/sum(count))%>%
+  select(Seller, Seller_Status, count, percentage)%>%
+  kable(col.names = c("Seller", "Seller Status", "Count", "Percentage"))
+```
+
+
+### Gear and Brand Relationship
+
+```{r gear and brand analysis}
+carmarket %>%
+  group_by(Brand, Gear) %>%
+  summarize(gear_type_count = n())  %>%
+  mutate(gear_type_percentage = gear_type_count / sum(gear_type_count)) %>%
+  #head(108) %>%
+  ggplot(., aes(x = Brand, y = gear_type_count, fill = Gear)) +
+  geom_bar(position = "fill",stat = "identity") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent_format()) +
+  #geom_text(aes(label = format(gear_type_percentage, digits=3)), size=4, position = position_dodge(0.9)) +
+  theme(axis.text.x = element_text(angle = 90), legend.position = "right") +
+  labs(title = "Gear Type Comparison of Car Brands",
+       subtitle = st,
+       x = "Brand",
+       y = "Percentage of Gear Type", 
+       fill = "Gear Type")
+```
+
+```{r}
+carmarket %>%
+  group_by(Brand, Gear) %>%
+  summarize(gear_type_count = n())  %>%
+  mutate(gear_type_percentage = gear_type_count / sum(gear_type_count)) %>%
+  select(Brand, Gear, gear_type_percentage) %>%
+  pivot_wider(id_cols = Brand, names_from = Gear, values_from = gear_type_percentage)
+```
+
+
+```{r, include=FALSE}
+##TAHA##
+#carmarket[, sapply(.SD, function(x) c(mean=mean(x), count=count(x, sort = TRUE))), .SDcols=c("Price"), by = Brand]
+
+carmarket %>%
+  count(Color, sort = TRUE) %>%
+  mutate(percentage = 100*round(n/sum(n), digits = 3)) %>%
+  head(10) %>%
+  select(Color, percentage) %>%
+  kable(col.names = c("Color",  "Percentage"))
+```
+
+```{r}
+##TAHA##
+#carmarket[, sapply(.SD, function(x) c(mean=mean(x), count=count(x, sort = TRUE))), .SDcols=c("Price"), by = Brand]
+
+carmarket %>%
+  group_by(Color) %>%
+  summarize(count=n(),Min_Price=min(Price),Average_Price = mean(Price),Max_Price=max(Price) ) %>%
+  mutate(percentage = 100*round(count/sum(count),3))%>%
+  arrange(desc(percentage)) %>%
+   head(10) %>%
+  select(Color, count,  percentage, Min_Price, Average_Price, Max_Price ) %>%
+  kable(col.names = c("Color","Number of Ad","Percentage",  "Minimum Price", "Average Price", "Maximum Price"))
+```
+
+
+
+
+## 3. Conclusion
+
+## References
+
