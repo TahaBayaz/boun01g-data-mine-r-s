@@ -48,7 +48,7 @@ body {
 
 ### 1.1 Turkey Online Car Market 2020
 
-The dataset used in this project belongs to a website in Turkey which makes online buying and selling of cars advertised in 2020. It is called **Turkey Car Market 2020** and downloaded from [Kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020). The dataset contains information about features of cars which has been filled by sellers. The missing features of cars in the dataset are written as "Don't Know". In order to overcome the rows with missing values, a preprocessing of data is conducted and can be seen in [Preprocessing Section](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Preprocessing.html) for detailed explanations. This section also includes some accuracy checks of the data, and explanations od the variables.
+The dataset used in this project belongs to a website in Turkey which makes online buying and selling of cars advertised in 2020. It is called **Turkey Car Market 2020** and downloaded from [Kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020). The dataset contains information about features of cars which has been filled by sellers. The missing features of cars in the dataset are written as "Don't Know". In order to overcome the rows with missing values, a preprocessing of data is conducted and can be seen in [Preprocessing Section](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Preprocessing.html) for detailed explanations. This section also includes some accuracy checks of the data, and explanations od the variables. 
 
 ```{r, echo=FALSE}
 # Define variable containing url
