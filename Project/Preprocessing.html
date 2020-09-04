@@ -1706,26 +1706,26 @@ body {
 <h2>1. Data</h2>
 <p>The data are about the online car advertisements in Turkey market. There are 15 columns in the dataset. These are</p>
 <ol style="list-style-type: decimal">
-<li>Date (the date that the advertisement is published)</li>
-<li>Brand (the brand of the car)</li>
-<li>Vehicle_Type_Group (the vehicle type group of the car like Ranger, Sorento etc.)</li>
-<li>Vehicle_Type (the vehicle type of the car like 1.6, Broadway etc.)</li>
-<li>Model_Year (the year the car is produced)</li>
-<li>Fuel_Type (fuel type that the car has like Diesel, Electricity etc.)</li>
-<li>Gear (gear type the car has like Automatic, Manual etc.)</li>
-<li>CCM (the indicator of the motor capacity)</li>
-<li>Horse_Power (the indicator of the motor power)</li>
-<li>Color (the color of the car)</li>
-<li>Body_Type (the type of the body of the car like Sedan, Minivan etc.)</li>
-<li>Seller (the owner of the car)</li>
-<li>Seller_Status (the status of the usage of the car like 0 km, 2nd Hand etc.)</li>
-<li>Kilometers (the kilometer that the car traveled)</li>
-<li>Price (the price of the car in that advertisement)</li>
+<li><code>Date</code> (the date that the advertisement is published)</li>
+<li><code>Brand</code> (the brand of the car)</li>
+<li><code>Vehicle_Type_Group</code> (the vehicle type group of the car like Ranger, Sorento etc.)</li>
+<li><code>Vehicle_Type</code> (the vehicle type of the car like 1.6, Broadway etc.)</li>
+<li><code>Model_Year</code> (the year the car is produced)</li>
+<li><code>Fuel_Type</code> (fuel type that the car has like Diesel, Electricity etc.)</li>
+<li><code>Gear</code> (gear type the car has like Automatic, Manual etc.)</li>
+<li><code>CCM</code> (the indicator of the motor capacity)</li>
+<li><code>Horse_Power</code> (the indicator of the motor power)</li>
+<li><code>Color</code> (the color of the car)</li>
+<li><code>Body_Type</code> (the type of the body of the car like Sedan, Minivan etc.)</li>
+<li><code>Seller</code> (the owner of the car)</li>
+<li><code>Seller_Status</code> (the status of the usage of the car like 0 km, 2nd Hand etc.)</li>
+<li><code>Kilometers</code> (the kilometer that the car traveled)</li>
+<li><code>Price</code> (the price of the car in that advertisement)</li>
 </ol>
 <p>This data is prepared from the Turkish sites, so all values sand columns are in Turkish.</p>
-<div id="objectives-and-required-informations-for-the-analyses" class="section level3">
-<h3>1.1 Objectives and Required Informations for the Analyses</h3>
-<p>Before the analysis we need to upload required packages which are given in the below:</p>
+<div id="packages-for-preprocessing-steps" class="section level3">
+<h3>1.1 Packages for Preprocessing Steps</h3>
+<p>Before the preprocessing, we need to upload required packages which are given in the below:</p>
 <ol style="list-style-type: decimal">
 <li>tidyverse</li>
 <li>shiny</li>
@@ -2170,7 +2170,7 @@ body {
 ## </code></pre>
 </div>
 <div id="check-accuracy-of-values" class="section level3">
-<h3>Check Accuracy of Values</h3>
+<h3>1.5 Check Accuracy of Values</h3>
 <p>Before starting any of the analysis, we need to check the accuracy of values. For example, we can look for the <code>Price</code> column that has negative values.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>carmarket[Price <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, .N]</span></code></pre></div>
 <pre><code>## [1] 0</code></pre>
@@ -2279,6 +2279,7 @@ body {
 <p>We can check for the combination <code>Vehicle_Type</code> and <code>Vehicle_Type_Group</code> columns whether both of them are matching with each other. But, it will take more time than the value it would add.</p>
 <p>Now, our data is ready for making further analysis. So, we need to export the data for explanatory data analysis (EDA).</p>
 <div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="kw">write.csv</span>(carmarket, <span class="dt">file =</span> <span class="st">&quot;turkey_car_market_EDA.csv&quot;</span>)</span></code></pre></div>
+<p>For the analysis, you can follow this <a href="https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExplanatoryDataAnalysis.html">link</a></p>
 </div>
 </div>
 

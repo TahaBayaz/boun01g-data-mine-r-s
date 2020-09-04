@@ -75,6 +75,8 @@ carmarket = fread('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-
 
 ## 2. Explanatory  Data Analysis - EDA
 
+![Picture](images/car.jpeg)
+
 ### Time Series Analyses
 
 ```{r year count}
@@ -550,16 +552,13 @@ carmarket %>%
 ```
 
 
-```{r, include=FALSE}
-##TAHA##
-#carmarket[, sapply(.SD, function(x) c(mean=mean(x), count=count(x, sort = TRUE))), .SDcols=c("Price"), by = Brand]
-
-carmarket %>%
-  count(Color, sort = TRUE) %>%
-  mutate(percentage = 100*round(n/sum(n), digits = 3)) %>%
+```{r}
+merge(carmarket[, .N, by=Color], carmarket[, sapply(.SD, function(x) c(mean=mean(x))), .SDcols=c("Price"), by = Color], by = "Color") %>%
+  mutate(Percentage = N / nrow(carmarket) * 100) %>%
+  arrange(desc(Percentage)) %>%
   head(10) %>%
-  select(Color, percentage) %>%
-  kable(col.names = c("Color",  "Percentage"))
+  select(Color, V1, Percentage) %>%
+  kable(col.names = c("Color",  "Average Price", "Percentage"))
 ```
 
 ```{r}
