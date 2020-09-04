@@ -18,21 +18,25 @@ If you want to make your own analysis, you can download and get information abou
 
 ## PROJECT
 
-### Data for the Project
+#### Data for the Project
 
 You can find the data from this [link](https://www.kaggle.com/alpertemel/turkey-car-market-2020)
 
-### Project Proposal
+#### Project Proposal
 
 The project proposal is [here](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Proposal.html)
 
-### Preprocessing 
+#### Preprocessing 
 
 You can reach the preprocessing steps from this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Preprocessing.html)
 
-### Explanatory Data Analysis (EDA)
+#### Explanatory Data Analysis (EDA)
 
 You can reach the EDA steps from this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExplanatoryDataAnalysis.html)
+
+#### Shiny App
+
+You can run the shiny app by just typing the following code in your own R-console; *`shiny::runGitHub("pjournal/boun01g-data-mine-r-s", subdir = "Project", ref = "gh-pages")`*
 
 ## BONUS PROJECT
 
