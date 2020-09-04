@@ -467,7 +467,7 @@ carmarket = rbind(na.omit(carmarket.CCM.DK, 'CCM'), carmarket.CCM.FULL)
 
 Now, we need to consider these steps for `Horse_Power`. `Horse_Power` shows the measurement unit of power that engine has. It means that cars that have the same `Brand` and `CCM` values would have the same `CCM` value. We can do the same step in one chunk.
 
-```{r HP DKs, include=FALSE}
+```{r HP DKs}
 keys = c("Brand", "CCM")
 carmarket.HP.DK = data.table(carmarket[Horse_Power == 'Don\'t Know'], key = keys)
 carmarket.HP.FULL = data.table(carmarket[Horse_Power != 'Don\'t Know'], key = keys)
@@ -485,7 +485,7 @@ carmarket.HP.DK[is.na(Horse_Power), .N]
 
 After this process, we filled `r carmarket.HP.DK[!is.na(Horse_Power), .N]` rows and couldn't fill `r carmarket.HP.DK[is.na(Horse_Power), .N]` rows. With respect to number of observations in the data frame, which is `r nrow(carmarket)`, we can drop these rows and add these two data.tables.
 
-```{r drop HP NAs and bind,include=FALSE, eval=FALSE}
+```{r drop HP NAs and bind}
 carmarket = rbind(na.omit(carmarket.HP.DK, 'Horse_Power'), carmarket.HP.FULL)
 ```
 
@@ -560,8 +560,12 @@ We can check for the combination `Vehicle_Type` and `Vehicle_Type_Group` columns
 
 Now, our data is ready for making further analysis. So, we need to export the data for explanatory data analysis (EDA).
 
-```{r data export, eval = FALSE}
+```{r data export}
 write.csv(carmarket, file = "turkey_car_market_EDA.csv")
 ```
 
 For the analysis, you can follow this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExplanatoryDataAnalysis.html)
+
+## References
+
+1. [Mode Function](https://acadgild.com/blog/55690-2#:~:text=In%20R%2C%20there%20are%20no,created%20the%20function(x))

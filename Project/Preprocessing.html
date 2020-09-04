@@ -2125,162 +2125,220 @@ body {
 <p>After this process, we filled 100 rows and couldn’t fill 9 rows. With respect to number of observations in the data frame, which is 9044, we can drop these rows and add these two data.tables.</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>carmarket =<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">na.omit</span>(carmarket.CCM.DK, <span class="st">&#39;CCM&#39;</span>), carmarket.CCM.FULL)</span></code></pre></div>
 <p>Now, we need to consider these steps for <code>Horse_Power</code>. <code>Horse_Power</code> shows the measurement unit of power that engine has. It means that cars that have the same <code>Brand</code> and <code>CCM</code> values would have the same <code>CCM</code> value. We can do the same step in one chunk.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>keys =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Brand&quot;</span>, <span class="st">&quot;CCM&quot;</span>)</span>
+<span id="cb23-2"><a href="#cb23-2"></a>carmarket.HP.DK =<span class="st"> </span><span class="kw">data.table</span>(carmarket[Horse_Power <span class="op">==</span><span class="st"> &#39;Don</span><span class="ch">\&#39;</span><span class="st">t Know&#39;</span>], <span class="dt">key =</span> keys)</span>
+<span id="cb23-3"><a href="#cb23-3"></a>carmarket.HP.FULL =<span class="st"> </span><span class="kw">data.table</span>(carmarket[Horse_Power <span class="op">!=</span><span class="st"> &#39;Don</span><span class="ch">\&#39;</span><span class="st">t Know&#39;</span>], <span class="dt">key =</span> keys)</span>
+<span id="cb23-4"><a href="#cb23-4"></a>carmarket.HP.DK <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">glimpse</span>()</span></code></pre></div>
+<pre><code>## Rows: 5,544
+## Columns: 17
+## $ Date               &lt;date&gt; 2020-04-14, 2020-04-20, 2020-04-18, 2020-04-18,...
+## $ Year               &lt;int&gt; 2020, 2020, 2020, 2020, 2020, 2020, 2020, 2020, ...
+## $ Month              &lt;fct&gt; 4, 4, 4, 4, 4, 4, 4, 4, 5, 4, 4, 4, 4, 4, 4, 4, ...
+## $ Brand              &lt;fct&gt; Acura, Acura, Alfa Romeo, Alfa Romeo, Alfa Romeo...
+## $ Vehicle_Type_Group &lt;fct&gt; CL, CL, Other, 156, Giulietta, Other, Giulietta,...
+## $ Vehicle_Type       &lt;fct&gt; -, 2.2, Other, 1.6 TS, 1.6 JTD Distinctive, Othe...
+## $ Model_Year         &lt;dbl&gt; 2011, 2012, 2013, 1998, 2012, 2013, 2013, 2016, ...
+## $ Fuel_Type          &lt;fct&gt; Diesel, Diesel, Diesel, Gasoline, Diesel, Electr...
+## $ Gear               &lt;fct&gt; Manual, Manual, Manual, Manual, Manual, Semi Aut...
+## $ CCM                &lt;fct&gt; 1300 cc and below, 1801-2000 cc, 1300 cc and bel...
+## $ Horse_Power        &lt;fct&gt; Don&#39;t Know, Don&#39;t Know, Don&#39;t Know, Don&#39;t Know, ...
+## $ Color              &lt;fct&gt; Black, Silver Gray, Red, Red, White, Blue, White...
+## $ Body_Type          &lt;fct&gt; Hatchback 5 Doors, Off-road Vehicle, Hatchback 3...
+## $ Seller             &lt;fct&gt; Owner, Galery, Galery, Galery, Galery, Galery, G...
+## $ Seller_Status      &lt;fct&gt; 2nd Hand, 2nd Hand, 2nd Hand, 2nd Hand, 2nd Hand...
+## $ Kilometers         &lt;int&gt; 182, 270, 182000, 262000, 222000, 99000, 85000, ...
+## $ Price              &lt;int&gt; 62000, 82500, 72950, 32000, 69000, 105900, 12750...</code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>carmarket.HP.FULL <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">glimpse</span>()</span></code></pre></div>
+<pre><code>## Rows: 3,491
+## Columns: 17
+## $ Date               &lt;date&gt; 2020-04-15, 2020-04-15, 2020-05-08, 2020-04-14,...
+## $ Year               &lt;int&gt; 2020, 2020, 2020, 2020, 2020, 2020, 2020, 2020, ...
+## $ Month              &lt;fct&gt; 4, 4, 5, 4, 6, 5, 4, 4, 4, 3, 6, 6, 6, 5, 6, 4, ...
+## $ Brand              &lt;fct&gt; Acura, Acura, Acura, Acura, Acura, Acura, Acura,...
+## $ Vehicle_Type_Group &lt;fct&gt; CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, CL, ...
+## $ Vehicle_Type       &lt;fct&gt; -, -, -, 2.2, 2.2, -, -, -, Other, 2.2, -, 2.2, ...
+## $ Model_Year         &lt;dbl&gt; 2009, 2009, 2010, 2016, 1994, 2001, 2004, 2004, ...
+## $ Fuel_Type          &lt;fct&gt; Diesel, Diesel, Diesel, Electricity, Gasoline, G...
+## $ Gear               &lt;fct&gt; Manual, Manual, Manual, Manual, Manual, Manual, ...
+## $ CCM                &lt;fct&gt; 1300 cc and below, 1300 cc and below, 1300 cc an...
+## $ Horse_Power        &lt;fct&gt; 100 HP and below, 100 HP and below, 100 HP and b...
+## $ Color              &lt;fct&gt; Burgundy, Burgundy, Gray, Blue, Turquoise, Black...
+## $ Body_Type          &lt;fct&gt; Sedan, Sedan, Sedan, Hatchback 5 Doors, Sedan, H...
+## $ Seller             &lt;fct&gt; Owner, Owner, Galery, Galery, Owner, Owner, Gale...
+## $ Seller_Status      &lt;fct&gt; 2nd Hand, 2nd Hand, 2nd Hand, 2nd Hand, 2nd Hand...
+## $ Kilometers         &lt;int&gt; 150000, 150000, 232000, 70000, 175000, 252000, 2...
+## $ Price              &lt;int&gt; 34000, 34000, 52000, 77500, 19750, 36750, 32000,...</code></pre>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="st"> </span><span class="kw">nrow</span>(carmarket.HP.DK)){</span>
+<span id="cb27-2"><a href="#cb27-2"></a>  brand =<span class="st"> </span>carmarket.HP.DK[i, Brand]</span>
+<span id="cb27-3"><a href="#cb27-3"></a>  ccm =<span class="st"> </span>carmarket.HP.DK[i, CCM]</span>
+<span id="cb27-4"><a href="#cb27-4"></a>  carmarket.HP.DK[i, Horse_Power <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">calculate_mode</span>(carmarket.HP.FULL[Brand <span class="op">==</span><span class="st"> </span>brand <span class="op">&amp;</span><span class="st"> </span>CCM <span class="op">==</span><span class="st"> </span>ccm, .(Brand, CCM, Horse_Power)])<span class="op">$</span>Horse_Power]</span>
+<span id="cb27-5"><a href="#cb27-5"></a>}</span>
+<span id="cb27-6"><a href="#cb27-6"></a></span>
+<span id="cb27-7"><a href="#cb27-7"></a>carmarket.HP.DK[<span class="kw">is.na</span>(Horse_Power), .N]</span></code></pre></div>
+<pre><code>## [1] 200</code></pre>
 <p>After this process, we filled 5344 rows and couldn’t fill 200 rows. With respect to number of observations in the data frame, which is 9035, we can drop these rows and add these two data.tables.</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>carmarket =<span class="st"> </span><span class="kw">rbind</span>(<span class="kw">na.omit</span>(carmarket.HP.DK, <span class="st">&#39;Horse_Power&#39;</span>), carmarket.HP.FULL)</span></code></pre></div>
 <p>After these processes, we have a full dataset. You can see the summary of the dataset below.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="kw">summary</span>(carmarket)</span></code></pre></div>
-<pre><code>##       Date                 Year      Month          Brand     
-##  Min.   :2019-12-23   Min.   :2019   3 : 286   Renault :2079  
-##  1st Qu.:2020-04-18   1st Qu.:2020   4 :5415   Fiat    : 653  
-##  Median :2020-04-18   Median :2020   5 :1809   Opel    : 645  
-##  Mean   :2020-05-01   Mean   :2020   6 :1523   Hyundai : 639  
-##  3rd Qu.:2020-05-17   3rd Qu.:2020   12:   2   BMW     : 616  
-##  Max.   :2020-06-16   Max.   :2020             Mercedes: 613  
-##                                                (Other) :3790  
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">summary</span>(carmarket)</span></code></pre></div>
+<pre><code>##       Date                 Year      Month         Brand     
+##  Min.   :2019-12-23   Min.   :2019   3 : 285   Renault:2079  
+##  1st Qu.:2020-04-18   1st Qu.:2020   4 :5248   Fiat   : 653  
+##  Median :2020-04-18   Median :2020   5 :1778   Opel   : 643  
+##  Mean   :2020-05-01   Mean   :2020   6 :1522   Hyundai: 639  
+##  3rd Qu.:2020-05-18   3rd Qu.:2020   12:   2   Ford   : 601  
+##  Max.   :2020-06-16   Max.   :2020             BMW    : 598  
+##                                                (Other):3622  
 ##  Vehicle_Type_Group                  Vehicle_Type    Model_Year  
-##  Clio   : 490       Other                  :1032   Min.   :1959  
+##  Clio   : 490       Other                  : 994   Min.   :1959  
 ##  Megane : 443       1.5 dCi Joy            : 409   1st Qu.:2010  
 ##  Fluence: 426       1.5 dCi Touch          : 377   Median :2014  
 ##  Symbol : 420       1.5 dCi Icon           : 183   Mean   :2012  
 ##  Focus  : 359       1.5 dCi Ambiance       : 150   3rd Qu.:2017  
 ##  Astra  : 332       1.5 dCi SportTourer Joy: 105   Max.   :2020  
-##  (Other):6565       (Other)                :6779                 
+##  (Other):6365       (Other)                :6617                 
 ##        Fuel_Type                Gear                     CCM      
-##  Diesel     :5879   Automatic     :2445   1301-1600 cc     :6017  
-##  Electricity:1446   Manual        :4492   1300 cc and below:1091  
-##  Gasoline   :1683   Semi Automatic:2098   1801-2000 cc     : 824  
+##  Diesel     :5813   Automatic     :2325   1301-1600 cc     :5992  
+##  Electricity:1348   Manual        :4463   1300 cc and below: 984  
+##  Gasoline   :1647   Semi Automatic:2047   1801-2000 cc     : 815  
 ##  Hybrid     :  27                         1601-1800 cc     : 428  
-##                                           2501-3000 cc     : 328  
-##                                           2001-2500 cc     : 211  
-##                                           (Other)          : 136  
+##                                           2501-3000 cc     : 317  
+##                                           2001-2500 cc     : 205  
+##                                           (Other)          :  94  
 ##            Horse_Power           Color                  Body_Type   
-##  Don&#39;t Know      :5544   White      :4280   Sedan            :4622  
-##  100 HP and below:1613   Black      :1221   Hatchback 5 Doors:2309  
-##  101-125 HP      : 993   Gray       :1021   Off-road Vehicle :1218  
-##  126-150 HP      : 461   Silver Gray: 649   Station Wagon    : 241  
-##  176-200 HP      : 144   Smoked     : 434   Glass Van        : 149  
-##  151-175 HP      : 125   Red        : 387   Sport / Coupe    : 147  
-##  (Other)         : 155   (Other)    :1043   (Other)          : 349  
+##  100 HP and below:5441   White      :4225   Sedan            :4556  
+##  101-125 HP      :1315   Black      :1159   Hatchback 5 Doors:2292  
+##  126-150 HP      : 892   Gray       :1004   Off-road Vehicle :1149  
+##  151-175 HP      : 484   Silver Gray: 640   Station Wagon    : 240  
+##  176-200 HP      : 267   Smoked     : 420   Glass Van        : 149  
+##  276-300 HP      : 202   Red        : 379   Sport / Coupe    : 132  
+##  (Other)         : 234   (Other)    :1008   (Other)          : 317  
 ##        Seller      Seller_Status    Kilometers          Price        
-##  Authority:  67   0 km    : 246   Min.   :      0   Min.   :   5500  
-##  Galery   :7352   2nd Hand:8740   1st Qu.:  68000   1st Qu.:  61000  
-##  Owner    :1616   Classic :  10   Median : 125000   Median :  95500  
-##                   Damaged :  39   Mean   : 135747   Mean   : 148149  
-##                                   3rd Qu.: 194000   3rd Qu.: 153625  
+##  Authority:  67   0 km    : 234   Min.   :      0   Min.   :   5500  
+##  Galery   :7152   2nd Hand:8552   1st Qu.:  68000   1st Qu.:  60000  
+##  Owner    :1616   Classic :  10   Median : 125000   Median :  94500  
+##                   Damaged :  39   Mean   : 135596   Mean   : 141747  
+##                                   3rd Qu.: 193000   3rd Qu.: 150000  
 ##                                   Max.   :1850000   Max.   :5086500  
 ## </code></pre>
 </div>
 <div id="check-accuracy-of-values" class="section level3">
 <h3>1.5 Check Accuracy of Values</h3>
 <p>Before starting any of the analysis, we need to check the accuracy of values. For example, we can look for the <code>Price</code> column that has negative values.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>carmarket[Price <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, .N]</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>carmarket[Price <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, .N]</span></code></pre></div>
 <pre><code>## [1] 0</code></pre>
 <p>So, we can say that the values in the <code>Price</code> column are valid values. We can look for the <code>Kilometers</code> column that has negative values.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>carmarket[Kilometers <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, .N]</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>carmarket[Kilometers <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>, .N]</span></code></pre></div>
 <pre><code>## [1] 0</code></pre>
 <p>So, we can say that the values in the <code>Kilometers</code> column are valid values. We can look for the <code>Model_Year</code> column that has values that can not be a year.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">sort</span>(<span class="kw">unique</span>(carmarket[, Model_Year]))</span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a><span class="kw">sort</span>(<span class="kw">unique</span>(carmarket[, Model_Year]))</span></code></pre></div>
 <pre><code>##  [1] 1959 1961 1976 1977 1978 1979 1981 1982 1983 1984 1985 1986 1987 1988 1989
 ## [16] 1990 1991 1992 1993 1994 1995 1996 1997 1998 1999 2000 2001 2002 2003 2004
 ## [31] 2005 2006 2007 2008 2009 2010 2011 2012 2013 2014 2015 2016 2017 2018 2019
 ## [46] 2020</code></pre>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>carmarket[Model_Year <span class="op">&gt;</span><span class="st"> </span><span class="kw">year</span>(Date), .N]</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>carmarket[Model_Year <span class="op">&gt;</span><span class="st"> </span><span class="kw">year</span>(Date), .N]</span></code></pre></div>
 <pre><code>## [1] 0</code></pre>
 <p>So, we can say that the values in the <code>Model_Year</code> column are valid values and model years of all cars in the advertisements are appropriate with dates of advertisements. We can check for the advertisements whose <code>Seller_Status</code> is <em>2nd Hand</em> and <code>Kilometers</code> is <em>0</em>.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a>carmarket[Seller_Status <span class="op">==</span><span class="st"> &quot;2nd Hand&quot;</span> <span class="op">&amp;</span><span class="st"> </span>Kilometers <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, .N]</span></code></pre></div>
-<pre><code>## [1] 8</code></pre>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>carmarket[Seller_Status <span class="op">==</span><span class="st"> &quot;2nd Hand&quot;</span> <span class="op">&amp;</span><span class="st"> </span>Kilometers <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, Seller]</span></code></pre></div>
-<pre><code>## [1] Owner  Owner  Galery Galery Galery Galery Galery Owner 
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>carmarket[Seller_Status <span class="op">==</span><span class="st"> &quot;2nd Hand&quot;</span> <span class="op">&amp;</span><span class="st"> </span>Kilometers <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, .N]</span></code></pre></div>
+<pre><code>## [1] 6</code></pre>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>carmarket[Seller_Status <span class="op">==</span><span class="st"> &quot;2nd Hand&quot;</span> <span class="op">&amp;</span><span class="st"> </span>Kilometers <span class="op">==</span><span class="st"> </span><span class="dv">0</span>, Seller]</span></code></pre></div>
+<pre><code>## [1] Galery Owner  Owner  Galery Galery Owner 
 ## Levels: Authority Galery Owner</code></pre>
-<p>There are 8 advertisements meaning that the <code>Seller</code> (Owner, Galery) has a secondhand car, which means the car is used, but it is not driven any kilometers. In practice it is not a common case but we can assume that it can be correct.</p>
+<p>There are 6 advertisements meaning that the <code>Seller</code> (Galery, Owner) has a secondhand car, which means the car is used, but it is not driven any kilometers. In practice it is not a common case but we can assume that it can be correct.</p>
 <p>We can check for the highest 10 price in the dataset.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="kw">setorder</span>(carmarket, <span class="op">-</span>Price) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)</span></code></pre></div>
-<pre><code>##           Date Year Month    Brand Vehicle_Type_Group  Vehicle_Type Model_Year
-##  1: 2020-05-12 2020     5  Hyundai                I20 1.4 CRDI Jump       2013
-##  2: 2020-05-12 2020     5 Mercedes          Maybach S         S 560       2020
-##  3: 2020-04-18 2020     4 Mercedes          Maybach S         S 560       2020
-##  4: 2020-04-18 2020     4 Mercedes           G Series        63 AMG       2020
-##  5: 2020-04-18 2020     4 Mercedes           G Series        63 AMG       2020
-##  6: 2020-04-17 2020     4 Mercedes           G Series        63 AMG       2020
-##  7: 2020-04-17 2020     4 Mercedes           G Series        63 AMG       2020
-##  8: 2020-04-17 2020     4     Audi              RS Q8      4.0 TFSI       2020
-##  9: 2020-04-18 2020     4 Mercedes           G Series         400 D       2020
-## 10: 2020-04-17 2020     4     Audi              RS Q8      4.0 TFSI       2020
-##       Fuel_Type      Gear               CCM      Horse_Power  Color
-##  1:      Diesel    Manual 1300 cc and below 100 HP and below  White
-##  2: Electricity Automatic      3501-4000 cc       Don&#39;t Know  Black
-##  3: Electricity Automatic      3501-4000 cc       Don&#39;t Know  Black
-##  4: Electricity Automatic      3501-4000 cc       Don&#39;t Know  Black
-##  5: Electricity Automatic      3501-4000 cc       Don&#39;t Know  White
-##  6: Electricity Automatic      3501-4000 cc       Don&#39;t Know  Black
-##  7: Electricity Automatic      3501-4000 cc       Don&#39;t Know  Black
-##  8: Electricity Automatic      3501-4000 cc       Don&#39;t Know  White
-##  9:      Diesel Automatic      2501-3000 cc       Don&#39;t Know  Black
-## 10: Electricity Automatic      3501-4000 cc       Don&#39;t Know Smoked
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1"></a><span class="kw">setorder</span>(carmarket, <span class="op">-</span>Price) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)</span></code></pre></div>
+<pre><code>##           Date Year Month      Brand Vehicle_Type_Group        Vehicle_Type
+##  1: 2020-05-12 2020     5    Hyundai                I20       1.4 CRDI Jump
+##  2: 2020-04-18 2020     4   Mercedes           G Series               400 D
+##  3: 2020-04-18 2020     4       Audi                 RS                RS 6
+##  4: 2020-04-18 2020     4       Audi                 RS                RS 6
+##  5: 2020-05-12 2020     5 Land Rover              Other               Other
+##  6: 2020-04-22 2020     4 Land Rover              Other               Other
+##  7: 2020-05-12 2020     5    Porsche           Panamera               Other
+##  8: 2020-05-01 2020     5    Porsche           Panamera Panamera 4 E-Hybrid
+##  9: 2020-04-18 2020     4   Mercedes           S Series           S 400 AMG
+## 10: 2020-04-17 2020     4   Mercedes           G Series               350 D
+##     Model_Year   Fuel_Type      Gear               CCM      Horse_Power Color
+##  1:       2013      Diesel    Manual 1300 cc and below 100 HP and below White
+##  2:       2020      Diesel Automatic      2501-3000 cc       126-150 HP Black
+##  3:       2020 Electricity Automatic 1300 cc and below       251-275 HP Black
+##  4:       2020 Electricity Automatic 1300 cc and below       251-275 HP Black
+##  5:       2020      Diesel Automatic      2501-3000 cc       176-200 HP Black
+##  6:       2020      Diesel Automatic      2501-3000 cc       176-200 HP Black
+##  7:       2020      Hybrid Automatic      2501-3000 cc       226-250 HP Black
+##  8:       2020      Hybrid Automatic      2501-3000 cc       226-250 HP Black
+##  9:       2020      Diesel Automatic      2501-3000 cc       126-150 HP Black
+## 10:       2020      Diesel Automatic      2501-3000 cc       126-150 HP Black
 ##             Body_Type Seller Seller_Status Kilometers   Price
 ##  1: Hatchback 5 Doors  Owner      2nd Hand     140000 5086500
-##  2:             Sedan Galery          0 km          0 3360000
-##  3:             Sedan Galery          0 km          0 3360000
-##  4:  Off-road Vehicle Galery          0 km          0 3310000
-##  5:  Off-road Vehicle Galery          0 km          0 3300000
-##  6:  Off-road Vehicle Galery      2nd Hand        900 3250000
-##  7:  Off-road Vehicle Galery          0 km          0 3250000
-##  8:  Off-road Vehicle Galery          0 km          0 2720000
-##  9:  Off-road Vehicle Galery          0 km          0 2720000
-## 10:  Off-road Vehicle Galery          0 km          0 2680000</code></pre>
+##  2:  Off-road Vehicle Galery          0 km          0 2720000
+##  3:     Station Wagon Galery      2nd Hand        250 2550000
+##  4:     Station Wagon Galery          0 km          0 2500000
+##  5:  Off-road Vehicle Galery          0 km          0 2425000
+##  6:  Off-road Vehicle Galery          0 km          0 2390000
+##  7: Hatchback 5 Doors Galery          0 km          0 2375000
+##  8: Hatchback 5 Doors Galery          0 km          0 2375000
+##  9:             Sedan Galery          0 km          0 2350000
+## 10:  Off-road Vehicle Galery          0 km          0 2335000</code></pre>
 <p>When we look at the first row we see a car whose horse power is 100 HP or below, CCM is 1300 CC or below, secondhand, kilometer is 140000 and brand is Hyundai i20. Its price is more than 5m Turkish Liras. When we search for some advertisements about the model, we come up with prices at most 100000 Turkish Liras. In reality this row is not possible since the <code>Seller</code> does not want to show-off with his/her car. So, we will remove that row from the data.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>carmarket =<span class="st"> </span>carmarket[Price <span class="op">!=</span><span class="st"> </span><span class="dv">5086500</span>,]</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1"></a>carmarket =<span class="st"> </span>carmarket[Price <span class="op">!=</span><span class="st"> </span><span class="dv">5086500</span>,]</span></code></pre></div>
 <p>Another control in the data is to check for outliers.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>qtl1 =<span class="st"> </span><span class="kw">quantile</span>(carmarket[, Price], <span class="fl">0.25</span>)</span>
-<span id="cb40-2"><a href="#cb40-2"></a>qtl3 =<span class="st"> </span><span class="kw">quantile</span>(carmarket[, Price], <span class="fl">0.75</span>)</span>
-<span id="cb40-3"><a href="#cb40-3"></a></span>
-<span id="cb40-4"><a href="#cb40-4"></a>iqr =<span class="st"> </span>qtl3 <span class="op">-</span><span class="st"> </span>qtl1</span>
-<span id="cb40-5"><a href="#cb40-5"></a></span>
-<span id="cb40-6"><a href="#cb40-6"></a>lower =<span class="st"> </span>qtl1 <span class="op">-</span><span class="st"> </span><span class="fl">1.5</span> <span class="op">*</span><span class="st"> </span>iqr</span>
-<span id="cb40-7"><a href="#cb40-7"></a>upper =<span class="st"> </span>qtl3 <span class="op">+</span><span class="st"> </span><span class="fl">1.5</span> <span class="op">*</span><span class="st"> </span>iqr</span>
-<span id="cb40-8"><a href="#cb40-8"></a></span>
-<span id="cb40-9"><a href="#cb40-9"></a>carmarket[Price <span class="op">&gt;</span><span class="st"> </span>upper <span class="op">|</span><span class="st"> </span>Price <span class="op">&lt;</span><span class="st"> </span>lower, .SD]</span></code></pre></div>
-<pre><code>##            Date Year Month    Brand Vehicle_Type_Group        Vehicle_Type
-##   1: 2020-05-12 2020     5 Mercedes          Maybach S               S 560
-##   2: 2020-04-18 2020     4 Mercedes          Maybach S               S 560
-##   3: 2020-04-18 2020     4 Mercedes           G Series              63 AMG
-##   4: 2020-04-18 2020     4 Mercedes           G Series              63 AMG
-##   5: 2020-04-17 2020     4 Mercedes           G Series              63 AMG
-##  ---                                                                      
-## 757: 2020-04-18 2020     4      BMW                 X5          30d xDrive
-## 758: 2020-04-18 2020     4 Mercedes           S Series         S 350 350 L
-## 759: 2020-04-17 2020     4      BMW           5 Series      520i Executive
-## 760: 2020-06-08 2020     6 Mercedes                  C 200 BlueTEC AMG\r\n
-## 761: 2020-04-17 2020     4    Skoda             Kodiaq       1.5 TSI Elite
-##      Model_Year   Fuel_Type           Gear          CCM Horse_Power       Color
-##   1:       2020 Electricity      Automatic 3501-4000 cc  Don&#39;t Know       Black
-##   2:       2020 Electricity      Automatic 3501-4000 cc  Don&#39;t Know       Black
-##   3:       2020 Electricity      Automatic 3501-4000 cc  Don&#39;t Know       Black
-##   4:       2020 Electricity      Automatic 3501-4000 cc  Don&#39;t Know       White
-##   5:       2020 Electricity      Automatic 3501-4000 cc  Don&#39;t Know       Black
-##  ---                                                                           
-## 757:       2010      Diesel      Automatic 2501-3000 cc  Don&#39;t Know       Black
-## 758:       2008    Gasoline      Automatic 3001-3500 cc  Don&#39;t Know Silver Gray
-## 759:       2016 Electricity Semi Automatic 1301-1600 cc  Don&#39;t Know       Black
-## 760:       2016      Diesel      Automatic 1301-1600 cc  126-150 HP        Gray
-## 761:       2019 Electricity Semi Automatic 1301-1600 cc  Don&#39;t Know        Gray
-##             Body_Type Seller Seller_Status Kilometers   Price
-##   1:            Sedan Galery          0 km          0 3360000
-##   2:            Sedan Galery          0 km          0 3360000
-##   3: Off-road Vehicle Galery          0 km          0 3310000
-##   4: Off-road Vehicle Galery          0 km          0 3300000
-##   5: Off-road Vehicle Galery      2nd Hand        900 3250000
-##  ---                                                         
-## 757: Off-road Vehicle Galery      2nd Hand     188000  293500
-## 758:            Sedan Galery      2nd Hand     266000  293000
-## 759:            Sedan Galery      2nd Hand      58657  292500
-## 760:            Sedan Galery      2nd Hand      61000  292500
-## 761: Off-road Vehicle Galery      2nd Hand       5407  292500</code></pre>
-<p>There are 761 outliers in the data with respect to <code>Price</code> values. This is normal, because there are many low-segment or mid-segment cars in the advertisements and these outliers are some of the high-segment car companies. There is nothing wrong with this data.</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a>qtl1 =<span class="st"> </span><span class="kw">quantile</span>(carmarket[, Price], <span class="fl">0.25</span>)</span>
+<span id="cb47-2"><a href="#cb47-2"></a>qtl3 =<span class="st"> </span><span class="kw">quantile</span>(carmarket[, Price], <span class="fl">0.75</span>)</span>
+<span id="cb47-3"><a href="#cb47-3"></a></span>
+<span id="cb47-4"><a href="#cb47-4"></a>iqr =<span class="st"> </span>qtl3 <span class="op">-</span><span class="st"> </span>qtl1</span>
+<span id="cb47-5"><a href="#cb47-5"></a></span>
+<span id="cb47-6"><a href="#cb47-6"></a>lower =<span class="st"> </span>qtl1 <span class="op">-</span><span class="st"> </span><span class="fl">1.5</span> <span class="op">*</span><span class="st"> </span>iqr</span>
+<span id="cb47-7"><a href="#cb47-7"></a>upper =<span class="st"> </span>qtl3 <span class="op">+</span><span class="st"> </span><span class="fl">1.5</span> <span class="op">*</span><span class="st"> </span>iqr</span>
+<span id="cb47-8"><a href="#cb47-8"></a></span>
+<span id="cb47-9"><a href="#cb47-9"></a>carmarket[Price <span class="op">&gt;</span><span class="st"> </span>upper <span class="op">|</span><span class="st"> </span>Price <span class="op">&lt;</span><span class="st"> </span>lower, .SD]</span></code></pre></div>
+<pre><code>##            Date Year Month      Brand Vehicle_Type_Group         Vehicle_Type
+##   1: 2020-04-18 2020     4   Mercedes           G Series                400 D
+##   2: 2020-04-18 2020     4       Audi                 RS                 RS 6
+##   3: 2020-04-18 2020     4       Audi                 RS                 RS 6
+##   4: 2020-05-12 2020     5 Land Rover              Other                Other
+##   5: 2020-04-22 2020     4 Land Rover              Other                Other
+##  ---                                                                         
+## 738: 2020-04-18 2020     4        BMW           5 Series 525d xDrive  Premium
+## 739: 2020-06-07 2020     6      Honda               CR-V 1.6 i-DTEC Executive
+## 740: 2020-04-18 2020     4   Mercedes           E Series            E 180 AMG
+## 741: 2020-04-18 2020     4   Mercedes                GLA                Other
+## 742: 2020-04-18 2020     4    Peugeot                508                Other
+##      Model_Year   Fuel_Type           Gear               CCM      Horse_Power
+##   1:       2020      Diesel      Automatic      2501-3000 cc       126-150 HP
+##   2:       2020 Electricity      Automatic 1300 cc and below       251-275 HP
+##   3:       2020 Electricity      Automatic 1300 cc and below       251-275 HP
+##   4:       2020      Diesel      Automatic      2501-3000 cc       176-200 HP
+##   5:       2020      Diesel      Automatic      2501-3000 cc       176-200 HP
+##  ---                                                                         
+## 738:       2014      Diesel Semi Automatic      1801-2000 cc       276-300 HP
+## 739:       2017      Diesel      Automatic      1301-1600 cc 100 HP and below
+## 740:       2014 Electricity      Automatic      1301-1600 cc       151-175 HP
+## 741:       2016 Electricity Semi Automatic      1301-1600 cc       151-175 HP
+## 742:       2020      Diesel      Automatic      1301-1600 cc 100 HP and below
+##      Color        Body_Type Seller Seller_Status Kilometers   Price
+##   1: Black Off-road Vehicle Galery          0 km          0 2720000
+##   2: Black    Station Wagon Galery      2nd Hand        250 2550000
+##   3: Black    Station Wagon Galery          0 km          0 2500000
+##   4: Black Off-road Vehicle Galery          0 km          0 2425000
+##   5: Black Off-road Vehicle Galery          0 km          0 2390000
+##  ---                                                               
+## 738: White            Sedan Galery      2nd Hand     191000  285000
+## 739: White Off-road Vehicle Galery      2nd Hand      53500  285000
+## 740: Black            Sedan Galery      2nd Hand      90000  285000
+## 741: White Off-road Vehicle Galery      2nd Hand      67467  285000
+## 742: Black            Sedan Galery      2nd Hand        400  285000</code></pre>
+<p>There are 742 outliers in the data with respect to <code>Price</code> values. This is normal, because there are many low-segment or mid-segment cars in the advertisements and these outliers are some of the high-segment car companies. There is nothing wrong with this data.</p>
 <p>We can check for the combination <code>Vehicle_Type</code> and <code>Vehicle_Type_Group</code> columns whether both of them are matching with each other. But, it will take more time than the value it would add.</p>
 <p>Now, our data is ready for making further analysis. So, we need to export the data for explanatory data analysis (EDA).</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a><span class="kw">write.csv</span>(carmarket, <span class="dt">file =</span> <span class="st">&quot;turkey_car_market_EDA.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="kw">write.csv</span>(carmarket, <span class="dt">file =</span> <span class="st">&quot;turkey_car_market_EDA.csv&quot;</span>)</span></code></pre></div>
 <p>For the analysis, you can follow this <a href="https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExplanatoryDataAnalysis.html">link</a></p>
 </div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<ol style="list-style-type: decimal">
+<li><a href="https://acadgild.com/blog/55690-2#:~:text=In%20R%2C%20there%20are%20no,created%20the%20function(x)">Mode Function</a></li>
+</ol>
 </div>
 
 
