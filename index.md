@@ -36,7 +36,7 @@ You can reach the EDA steps from this [link](https://pjournal.github.io/boun01g-
 
 #### Shiny App
 
-You can run the shiny app by just typing the following code in your own R-console; *`shiny::runGitHub("pjournal/boun01g-data-mine-r-s", subdir = "Project", ref = "gh-pages")`*
+You can run the shiny app by just typing the following code in your own R-console; **`shiny::runGitHub("pjournal/boun01g-data-mine-r-s", subdir = "Project", ref = "gh-pages")`** *(Note that the app requires 'data.table' and 'tidyverse' libraries.)*
 
 ## BONUS PROJECT
 
