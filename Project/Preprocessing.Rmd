@@ -46,6 +46,25 @@ body {
 ## TURKEY CAR MARKET 2020
 ## 1. Data
 
+The data are about the online car advertisements in Turkey market. There are 15 columns in the dataset. These are
+
+1. Date (the date that the advertisement is published)
+2. Brand (the brand of the car)
+3. Vehicle_Type_Group (the vehicle type group of the car like Ranger, Sorento etc.)
+4. Vehicle_Type (the vehicle type of the car like 1.6, Broadway etc.)
+5. Model_Year (the year the car is produced)
+6. Fuel_Type (fuel type that the car has like Diesel, Electricity etc.)
+7. Gear (gear type the car has like Automatic, Manual etc.)
+8. CCM (the indicator of the motor capacity)
+9. Horse_Power (the indicator of the motor power)
+10. Color (the color of the car)
+11. Body_Type (the type of the body of the car like Sedan, Minivan etc.)
+12. Seller (the owner of the car)
+13. Seller_Status (the status of the usage of the car like 0 km, 2nd Hand etc.)
+14. Kilometers (the kilometer that the car traveled)
+15. Price (the price of the car in that advertisement)
+
+This data is prepared from the Turkish sites, so all values sand columns are in Turkish.
 
 ### 1.1 Objectives and Required Informations for the Analyses
 
@@ -55,13 +74,12 @@ Before the analysis we need to upload required packages which are given in the b
 2. shiny
 3. ggplot2
 4. lubridate
-5. tm
 6. knitr
 7. tinytex
 
 ```{r packages, message=FALSE, warning=FALSE}
 #Required packages
-pti <- c("data.table", "tidyverse", "lubridate", "tm", "knitr", "tinytex", "scales")
+pti <- c("data.table", "tidyverse", "lubridate", "knitr", "tinytex", "scales")
 pti <- pti[!(pti %in% installed.packages())]
 if(length(pti)>0){
     install.packages(pti)
@@ -69,7 +87,6 @@ if(length(pti)>0){
 
 library(tidyverse)
 library(lubridate)
-library(tm)
 library(knitr)
 library(tinytex)
 library(data.table)
@@ -79,7 +96,8 @@ library(scales)
 
 
 ### 1.2 Preprocessing of the Data
-Our data set which we obtain from the [kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020) is created by using Turkish language. For this reason, before the explanatory analysis, we transform our name of the columns and variables to English. For this, we use following code. 
+
+At first, we need to upload the dataset. To do so, you can run the following command:
 
 ```{r data from local, include=FALSE}
 carmarket = fread("turkey_car_market.csv")
@@ -90,15 +108,17 @@ carmarket = fread("turkey_car_market.csv")
 carmarket = fread('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market.csv')
 ```
 
+Our data set which we obtain from the [kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020) is created by using Turkish language. For this reason, before the explanatory analysis, we transform our name of the columns to English. For this, we use the following code. 
+
 ```{r colnames}
 #changing column names by using English meaning
 col_names = c('Date', 'Brand', 'Vehicle_Type_Group', 'Vehicle_Type', 'Model_Year', 'Fuel_Type', 'Gear', 'CCM', 'Horse_Power', 'Color', 'Body_Type', 'Seller', 'Seller_Status', 'Kilometers', 'Price')
 names(carmarket) = col_names
 ```
 
-```{r translate}
+For the values, we use the following code.
 
-carmarket[, Date := dmy(Date)]
+```{r translate}
 
 carmarket = carmarket %>%
                       #Brand type
@@ -362,14 +382,19 @@ carmarket = carmarket %>%
 
 ```
 
-We can add the year and month of advertisements in `Year` and `Month` column.
+We can add the year and month of advertisements in `Year` and `Month` column. To be able to see all columns in order, we put the columns about the date to the beginning.
+
 ```{r Date}
+carmarket[, Date := dmy(Date)]
+
 carmarket = carmarket[, Year:= year(Date)]
 carmarket = carmarket[, Month:= month(Date)]
 carmarket$Month = as.factor(carmarket$Month)
+
 setcolorder(carmarket, c("Date", "Year", "Month", col_names[2:15]))
 ```
 
+From now on, we have all columns ready for future analysis and models.
 
 ### 1.3 Data Information 
 
@@ -380,7 +405,11 @@ carmarket %>%
 
 ```
 
+As we added two more columns, we have `r length(colnames(carmarket))` columns. We have some categorical columns and numerical columns.
+
 ### 1.4 Handling "Don't Know" Values
+
+As always, we need to check for null values in the data.
 
 ```{r null}
 sum(any(is.na(carmarket)))
@@ -459,6 +488,8 @@ After this process, we filled `r carmarket.HP.DK[!is.na(Horse_Power), .N]` rows 
 carmarket = rbind(na.omit(carmarket.HP.DK, 'Horse_Power'), carmarket.HP.FULL)
 ```
 
+After these processes, we have a full dataset. You can see the summary of the dataset below.
+
 ```{r summary}
 summary(carmarket)
 ```
@@ -508,6 +539,8 @@ When we look at the first row we see a car whose horse power is 100 HP or below,
 carmarket = carmarket[Price != 5086500,]
 ```
 
+Another control in the data is to check for outliers.
+
 ```{r IQR}
 qtl1 = quantile(carmarket[, Price], 0.25)
 qtl3 = quantile(carmarket[, Price], 0.75)
@@ -524,7 +557,7 @@ There are `r carmarket[Price > upper | Price < lower, .N]` outliers in the data 
 
 We can check for the combination `Vehicle_Type` and `Vehicle_Type_Group` columns whether both of them are matching with each other. But, it will take more time than the value it would add.
 
-Now, our data is ready for making further analysis. So, we need to export the data for our Rmarkdown.
+Now, our data is ready for making further analysis. So, we need to export the data for explanatory data analysis (EDA).
 
 ```{r data export, eval = FALSE}
 write.csv(carmarket, file = "turkey_car_market_EDA.csv")
