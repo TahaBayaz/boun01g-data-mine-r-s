@@ -42,42 +42,83 @@ body {
  
 </style>
 
-## 1. Import Packages And Data
+## TURKEY CAR MARKET 2020
 
-We need to load the packages that we will use
+## 1. Introduction
+
+### 1.1 Turkey Online Car Market 2020
+
+The dataset used in this project belongs to a website in Turkey which makes online buying and selling of cars advertised in 2020. It is called **Turkey Car Market 2020** and downloaded from [Kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020). The dataset contains information about features of cars which has been filled by sellers. The missing features of cars in the dataset are written as "Don't Know". In order to overcome the rows with missing values, a preprocessing of data is conducted and can be seen in [Preprocessing Section](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Preprocessing.html) for detailed explanations. This section also includes some accuracy checks of the data, and explanations od the variables. 
+
+```{r, echo=FALSE}
+# Define variable containing url
+url <- "https://www.boltscarcare.com/wp-content/uploads/2017/06/Used-Vehicle-Online.jpg"
+
+```
+
+
+<center>
+
+![](`r url`){#id .class width=600 height=300px}
+
+</center>
+
+### 1.2 Objectives
+
+In this project, we will first investigate the data for preprocessing to improve its quality. Then we will perform an exploratory data analysis(EDA) by data manipulation and data visualization steps. The main purpose is to identify which variables affect the price mostly and come up with a conclusion for the relationship between variables. In addition to these, we will study on some models to forecast prices of cars with given features. The processes during the assignment can be listed as below:
+
+1. Data Preprocessing
+2. Data Manipulation
+3. Data Visualization
+4. Interactive Shiny App
+5. Forecasting
+
+### 1.3 Used Packages
+
+The packages used during the project can be listed as below:
+
+1. tidyverse
+2. lubridate
+4. knitr
+5. tinytex
+6. data table 
+7. shiny
+8. scales
+9. kableExtra
 
 ```{r packages, message=FALSE, warning=FALSE}
 #Required packages
-pti <- c("data.table", "tidyverse", "tm", "knitr", "tinytex", "scales")
+pti <- c("data.table", "tidyverse", "knitr", "tinytex", "scales", "kableExtra")
 pti <- pti[!(pti %in% installed.packages())]
 if(length(pti)>0){
     install.packages(pti)
 }
 
 library(tidyverse)
-library(tm)
 library(knitr)
 library(tinytex)
 library(data.table)
 library(scales)
-```
-
-Before making any further analysis, we need to import the data that we preprocessed the data.
-
-```{r data from local, include=FALSE}
-carmarket = fread("turkey_car_market_EDA.csv")
-```
-
-```{r data from url, eval = FALSE}
-#data uploading
-carmarket = fread('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market_EDA.csv')
+library(kableExtra)
 ```
 
 ## 2. Explanatory  Data Analysis - EDA
 
-![Picture](images/car.jpeg)
+Before making any further analysis, we need to import the data that we pre-processed the data.The pre-processing report file link is given above. 
 
-### Time Series Analyses
+```{r data from local, include=FALSE}
+carmarket = readRDS("turkey_car_market_EDA")
+```
+
+```{r data from url, eval = FALSE}
+#data uploading
+carmarket = readRDS(gzcon(url("https://github.com/pjournal/boun01g-data-mine-r-s/blob/gh-pages/Project/turkey_car_market_EDA?raw=true")))
+```
+
+
+### 2.1 Time Series Analyses
+
+In this dataset, there are two variables which are related to time, i.e., *Model Year* and *Advertisement Date*. To analyze of the variable relationships, we first present time variables analyses as time series analyses. In the description of the dataset, it is told that this dataset contains the advertisements in 2020 but there are two rows which are from 2019. We will consider that it is not a problem.
 
 ```{r year count}
 carmarket %>%
@@ -85,26 +126,27 @@ carmarket %>%
   summarise(count = n()) %>%
   arrange(Year) %>%
   select(Year, count)%>%
-  kable(col.names = c("Year", "Count")) 
-
+  kable(col.names = c("Advertisement Year", "Count")) %>%
+  kable_minimal(full_width = F)
 ```
 
-In the description of the dataset, it is told that this dataset contains the advertisements in 2020 but there are two rows which are from 2019. We will consider that it is not a problem.
+When we look at the bar plot, there are advertisement whose month is changing from march to June and also there are two advertisements from December of 2019. There are more advertisements in April respect to other months. We can look for the daily count of these advertisements.
 
 ```{r month count}
 carmarket %>%
   group_by(Month) %>%
   summarise(count = n()) %>%
-  ggplot(., aes(x = Month, y = count)) +
+  ggplot(., aes(x = as.factor(Month), y = count, fill=count)) +
   geom_col() +
+  scale_fill_gradient("count", low="pink2", high="pink4") +
   theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(vjust = 0.5)) +
   labs(title = "Number of Advertisements Over Months",
        subtitle = st,
        x = "Month",
        y = "Number of Advertisement")
 ```
 
-When we look at the bar plot, there are advertisement whose month is changing from march to june and also there are two advertisements from december of 2019. There are more advertisements in april respect to other months. We can look for the daily count of these advertisements.
 
 ```{r date count}
 carmarket %>%
@@ -119,7 +161,7 @@ carmarket %>%
        y = "Number of Advertisement")
 ```
 
-There is a big jump in two days of april. So, we can get that with these commands:
+There is a big jump in two days of April. So, we can get that with these commands:
 
 ```{r date count table}
 carmarket %>%
@@ -127,8 +169,11 @@ carmarket %>%
   summarise(count = n()) %>%
   arrange(desc(count)) %>%
   select(Date, count)%>%
-  kable(col.names = c("Date", "Count"))
+  kable(col.names = c("Date", "Count")) %>%
+  kable_styling("striped", full_width = T) %>%
+  scroll_box(width = "100%", height = "400px")
 ```
+
 
 When we search for that increase in 17 - 18.04.2020 dates, there was an information about the sales that march, april and may have most of sales in a year (You can find this information from this [link](https://www.ikinciyeni.com/blog/iyi-surucu-rehberi-detay/araba-almak-icin-en-iyi-zaman)). So, this pick is an expected pick.
 
@@ -136,27 +181,33 @@ We can make a plot of sales respect to `Brand`.
 
 ```{r date_brand vs count}
 carmarket %>%
+  filter(Month <= 7 & Month >2) %>%
   group_by(Date, Brand) %>%
   summarise(count = n()) %>%
   ggplot(., aes(x = Date, y = count, color = Brand)) +
   geom_line() +
-  labs(title = "Seller Status Distribution of Sellers",
+  theme_minimal() +
+  labs(title = "Spread of Advertisement According to Date",
        subtitle = st,
        x = "Date",
        y = "Number of Advertisements",
        color = "Brands")
 ```
-In the pick period we see that there is a type of brand that is mostly in the advertisement. We can inspect which brand it is.
+
+In the pick period we see that there is a type of brand that is mostly in the advertisement. We can inspect which brand it is. Note that, almost all advertisements accumulate between March and July. For this reason, to provide clear insight, we filter this time interval.  
 
 ```{r date_brand vs count table}
 carmarket %>%
   group_by(Date, Brand) %>%
   summarise(count = n()) %>%
   arrange(desc(count)) %>%
-  head(10) %>%
+  #head(10) %>%
   select(Date, Brand, count)%>%
-  kable(col.names = c("Date", "Brand", "Count"))
+  kable(col.names = c("Date", "Brand", "Count")) %>%
+  kable_styling("striped", full_width = T) %>%
+  scroll_box(width = "100%", height = "400px")
 ```
+
 
 *Renault* is been in advertisements more than 6 times of the next brand. The reasons of this situation can be listed like below:
 
@@ -169,17 +220,26 @@ carmarket %>%
 carmarket_brand = carmarket %>%
   group_by(Brand) %>%
   summarise(count = n(), min_price = min(Price), max_price = max(Price), avg_price = mean(Price), median_price = median(Price))
-  
+
 carmarket_brand  %>%
   arrange(desc(count)) %>%
   select(Brand, count)%>%
-  kable(col.names = c("Brand", "Count"))
+  kable(col.names = c("Brand", "Count")) %>%
+  kable_styling("striped", full_width = T) %>%
+  scroll_box(width = "100%", height = "400px")
+```
 
+The number of advertisement belong to different car brands are given above table. 
+
+```{r}
 carmarket_brand %>%
   arrange(avg_price)%>%
-  select(Brand, avg_price, median_price, min_price, max_price)%>%
-  kable(col.names = c("Brand", "Average Price", "Median Price", "Minimum Price", "Maximum Price"))
+  select(Brand, avg_price, median_price, min_price, max_price) %>%
+  kable(col.names = c("Brand", "Average Price", "Median Price", "Minimum Price", "Maximum Price"))%>% 
+  kable_styling("striped", full_width = T) %>%
+  scroll_box(width = "100%", height = "400px")
 ```
+
 
 When we examine these two tables, we see that there are cheaper cars in the dataset. So, the third option is not true. So, we can assume that Renault is one of the online market leaders in the Turkey market. For the diversity of segments, we need too plot the prices of Renault.
 
@@ -188,6 +248,7 @@ carmarket[Brand == 'Renault', .(Price)] %>%
   ggplot(., aes(y = Price)) +
   geom_boxplot() +
   theme_minimal() +
+  expand_limits(x=c(-0.5,0.5)) +
   labs(title = "Price Diversity of Renault",
        subtitle = st,
        y = "Price") +
@@ -196,17 +257,19 @@ carmarket[Brand == 'Renault', .(Price)] %>%
 
 We can see from the plot that Renault has cars for every segment in Turkey market. This could make them to be very popular in the market.
 
+###  2.2 The Most/Least Popular Brands
 
-###  The Most and Least Popular Car Brands
+In this data set is obtained from the online sales web-page. To find most popular car brand, i.e., the car brands which have more advertisement, we calculate percentage of the cars according to the their Brands. Then,we obtain column chart.
 
 ```{r top 15 popular brands}
 carmarket %>%
   count(Brand, sort=TRUE) %>%
   mutate(percentage = 100 * n / sum(n)) %>%
   head(15) %>%
-  ggplot(.,aes(x=percentage, y=reorder(Brand,percentage),fill=percentage)) +
+  ggplot(.,aes(x=percentage, y=reorder(Brand,percentage), fill = percentage)) +
   geom_col() +
-  geom_text(aes(label = paste(format(percentage,digits=1), "%")), size=4, position = position_stack(vjust = 0.5)) +
+  scale_fill_gradient("percentage", low="seagreen2", high="seagreen4") +
+  geom_text(aes(label = paste(format(percentage,digits=3), "%")), size=4, position = position_stack(vjust = 0.5)) +
   theme_minimal() +
   theme(legend.position = "none", plot.title = element_text(vjust = 0.5)) +
   labs(x = "Percentages",
@@ -215,6 +278,9 @@ carmarket %>%
        subtitle = st)
 ```
 
+
+The result shows that, the most popular brands according to the number of advertisement in the online car market is Renault. It consists 23% of the advisement and Fiat is following this brand. This result also shows that Renault is one of the most preferable car brand in Turkey. For this reason, it can be sold more than the other Brands.
+
 ```{r top 15 less popular brands}
 carmarket %>%
   count(Brand, sort=TRUE) %>%
@@ -222,6 +288,7 @@ carmarket %>%
   tail(15) %>%
   ggplot(.,aes(x=percentage, y=reorder(Brand,percentage), fill=percentage)) +
   geom_col() +
+  scale_fill_gradient("percentage", low="peachpuff2", high="peachpuff4") +
   geom_text(aes(label = paste(format(percentage,digits=1), "%")), size=4, position = position_stack(vjust = 0.5)) +
   theme_minimal() +
   theme(legend.position = "none", plot.title = element_text(vjust = 0.5)) +
@@ -231,8 +298,13 @@ carmarket %>%
        subtitle = st)
 ```
 
+Like the the most popular brands, we can also sort the least popular brands in the online car market. The percentages of the Brands are calculated by using number of cars according to the Brands. The brands in this result indicates that the most expensive car brands like Maserati, Jaguar have smaller percentage because they are expensive car brands, for this reason there are few owner of this car, less advertisements. 
 
-### Price Analysis of Car Brands
+Note that, although the calculation is same with the the most popular car brands, because of the graph scale, the Tofas can be seen as higher percentage. However, when we examine the percentage value, we can get real results. 
+
+### 2.2 Price Analysis of Car Brands
+
+In the data set, the each car its own price, and these various price can be classified by using price intervals. By using quantile, we divide price variable into five level and then, we sort from the *Very Low* to the *Very High*. And we create another variable for this data set, which is called *Price Group*. After that, by using this classification, cars are examined with their price groups. 
 
 ```{r price group brand}
 quant = quantile(carmarket$Price, seq(0, 1, 0.2))
@@ -262,6 +334,9 @@ carmarket_price_group %>%
        fill = "Price Group")
 ```
 
+By using Price Group classification, we can obtain spread of the price in each car brand. Geely, and Tofas, for example, have only very low price, whereas the Maserati's price is in the very high class. Moreover, Jaguar and Porsche are almost in the very high class. The others have different price interval.
+
+To give more understandable analysis for the price of the brands, the following table can be used. This table illustrates the minimum, maximum and average prices of the cars according to the brands.
 
 ```{r brand summarize}
 carmarket %>%
@@ -272,10 +347,13 @@ carmarket %>%
   select(Brand,MinPrice, Average_Price,MaxPrice) %>%
   arrange(desc(Average_Price)) %>%
   head(10) %>%
-  kable(col.names = c("Brand",  "Minimum Price", "Average Price", "Maximum Price"))
+  kable(col.names = c("Brand",  "Minimum Price", "Average Price", "Maximum Price")) %>%
+  kable_styling("striped", full_width = T) %>%
+  scroll_box(width = "100%", height = "400px")
 
 ```
 
+The Brands are sorted according to the average price. In the first place, there is Porsche. This results also support the price group analysis. Moreover, to provide more understandable interpretation for the Brand, we present the bar chart of the Brands according to the their average price.
 
 ```{r brand vs mean price}
 carmarket %>%
@@ -290,68 +368,38 @@ carmarket %>%
          subtitle = st,
          x = "Average Price",
          y = "Brands")
-
-  
 ```
 
+### 2.3 Price Analysis By Body Type
 
-### Price Analysis By Fuel Type
-
-```{r fuel_type vs mean price, include=FALSE}
-carmarket %>%
-  group_by(Fuel_Type) %>%
-  summarize(Average_Price = mean(Price)) %>%
-  
-  ggplot(.,aes(x=reorder(Fuel_Type, -Average_Price), y = Average_Price, fill= Fuel_Type)) +
-    geom_col() +
-    theme_minimal() +
-    labs(title = "Average Price According to the Fuel Type",
-         subtitle = st, 
-         x = "Fuel Type",
-         y = "Average Price",
-         Fill = "Fuel Type")
-  
-  
-```
-
-
-```{r fuel_type vs price}
-carmarket %>%
-  group_by(Fuel_Type) %>%
-
-  ggplot(.,aes(x=Fuel_Type, y = Price, fill= Fuel_Type)) +
-    geom_boxplot() +
-    theme_minimal() +
-    scale_y_log10() +
-    labs(title = "Prices According to the Fuel Type",
-         subtitle = st, 
-         x = "Fuel Type",
-         y = "Price",
-         Fill = "Fuel Type")
-  
-  
-```
-
-### Price Analysis with Gear and Fuel Type
+In the previous section, we analyze the car brands and their features like Price. In this section we present the body type of the cars. One important factor that impacts this decision is  the type of car body which refers to the shape and the model.
 
 ```{r}
 carmarket %>%
-  group_by(Fuel_Type) %>%
-  mutate(Average_Price = mean(Price)) %>%
+  group_by(Body_Type) %>%
+  summarize(Average_Price = mean(Price)) %>%
   
-  ggplot(.,aes(x=reorder(Fuel_Type, -Average_Price), y = Average_Price, fill= Fuel_Type)) +
-    geom_col() +
-    facet_wrap(~Gear) +
+  ggplot(.,aes(x=reorder(Body_Type, -Average_Price), y = Average_Price, color= Body_Type)) +
+    geom_point(size=7) +
+    geom_segment(aes(x=Body_Type,
+                     xend=Body_Type,
+                     y=0,
+                     yend=Average_Price))+
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 90), legend.position = "none") +
     scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
-    labs(title = "Average Price According to the Fuel Type for Different Gear Type",
+    theme(axis.text.x = element_text(angle = 90), legend.position = "none")+
+        labs(title = "Average Price According to the Body Type",
          subtitle = st, 
-         x = "Fuel Type",
+         x = "Body Type",
          y = "Average Price",
-         Fill = "Fuel Type")
+         Fill = "Body Type")
 ```
 
+In the first place, there is sport/coupe body type because of the high average price of these cars. The reason behind this idea is that, the most of luxury cars with high price are sport cars such as Porsche. 
+
+### 2.4 Price Analysis By Fuel Type
+
+The fuel of the cars can be varied. There are for different fuel type: (i) diesel, (ii) electricity, (iii) gasoline, and (iv) hybrid. While diesel is produced by the distillation of crude oil, Gasoline is obtained from crude oil and other petroleum liquids. Hybrids, on the other hand, is the combination of the gasoline and electrical. 
 
 ```{r fuel_type vs percentage}
 carmarket %>%
@@ -368,8 +416,9 @@ carmarket %>%
   labs(title = "Percentages of Fuel Types",
        subtitle = st,
        fill = "Fuel Types")
-
 ```
+
+The pie chart shows that, the most of the cars in this dataset use Diesel, whereas the Hybrid usage is very low. These different fuel types can affect the price of the cars. To examine this assumption, we calculate minimum, maximum, and average price that are given below according to the fuel type. 
 
 ```{r fuel_type summarize}
 carmarket %>%
@@ -379,10 +428,118 @@ carmarket %>%
             Average_Price = mean(Price),
             Max_Price = max(Price)) %>%
   mutate(percentage = 100*round(count/sum(count),3))%>%
-  arrange(desc(percentage)) %>%
+  arrange(desc(Average_Price)) %>%
   select(Fuel_Type, count,  percentage, Min_Price, Average_Price, Max_Price ) %>%
-  kable(col.names = c("Fuel Type", "Number of Ad.", "Percentage", "Minimum Price", "Average Price", "Maximum Price")) 
+  kable(col.names = c("Fuel Type", "Number of Ad.", "Percentage", "Minimum Price", "Average Price", "Maximum Price"))  %>%
+  kable_minimal(full_width = F)
 ```
+
+```{r fuel_type vs mean price, include=FALSE}
+carmarket %>%
+  group_by(Fuel_Type) %>%
+  summarize(Average_Price = mean(Price)) %>%
+  
+  ggplot(.,aes(x=reorder(Fuel_Type, -Average_Price), y = Average_Price, fill= Fuel_Type)) +
+    geom_col() +
+    scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+    theme_minimal() +
+    labs(title = "Average Price According to the Fuel Type",
+         subtitle = st, 
+         x = "Fuel Type",
+         y = "Average Price",
+         Fill = "Fuel Type")
+```
+
+When we consider the table, the order of the fuel types according to the average price from the lowest to highest is Gasoline, Diesel, Electricity, and Hybrid. Moreover, the spread of price according to the fuel types is illustrated as box plot below.
+
+```{r fuel_type vs price}
+carmarket %>%
+  group_by(Fuel_Type) %>%
+
+  ggplot(.,aes(x=Fuel_Type, y = Price, fill= Fuel_Type)) +
+    geom_boxplot() +
+    theme_minimal() +
+    scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+    labs(title = "Prices According to the Fuel Type",
+         subtitle = st, 
+         x = "Fuel Type",
+         y = "Price",
+         fill = "Fuel Type")
+```
+
+- There are many outliers in Diesel and Electricity Fuel Type. 
+- Gasoline is the least expensive fuel type, on the other hand, hybrid is the most expensive one. 
+- The median of the Fuel Types, which are Diesel, Electricity, and Gasoline, almost in the middle of the quantiles. However, the median Hybrid is very close to the first quantile. 
+- Moreover, since the price interval of the Hybrid is wider, there is no outlier data. 
+
+
+### 2.5 Price Analysis By Gear 
+
+Like the fuel type, there is another feature, Gear Type, which affects the selection of cars. For this, we search the relationship between price and gear type.
+
+```{r gear vs price}
+carmarket %>%
+  ggplot(., aes(x = Gear, y = Price, color = Gear)) +
+  geom_jitter() +
+  theme_minimal() +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+```
+
+The half of the cars in this data set belongs to the Manual Gear Type. However, price distribution in manual gear type concentrates in a narrow area. Semi automatic and automatic, on the other hand, have a wider area with possible outliers.
+
+```{r}
+carmarket %>%
+  group_by(Gear) %>%
+  summarize(count=n(),Min_Price=min(Price),Average_Price = mean(Price),Max_Price=max(Price) ) %>%
+  mutate(percentage = 100*round(count/sum(count),3))%>%
+  arrange(desc(percentage)) %>%
+  select(Gear, count,  percentage, Min_Price, Average_Price, Max_Price ) %>%
+  kable(col.names = c("Gear","Number of Ad","Percentage",  "Minimum Price", "Average Price", "Maximum Price")) %>%
+  kable_minimal(full_width = F)
+```
+
+We give gear type branching according to the car brands below.
+
+```{r}
+carmarket %>%
+  group_by(Brand, Gear) %>%
+  summarize(gear_type_count = n())  %>%
+  mutate(gear_type_percentage = 100*round(gear_type_count / sum(gear_type_count), digits = 3)) %>%
+  select(Brand, Gear, gear_type_percentage) %>%
+  pivot_wider(id_cols = Brand, names_from = Gear, values_from = gear_type_percentage) %>%
+  kable(col.names = c("Brand", "Automatic (%)", "Manual (%)", "Semi Automatic (%)"))%>%
+  kable_styling("striped", full_width = T) %>%
+  scroll_box(width = "100%", height = "400px")
+```
+
+### 2.6 Price Analysis with Gear and Fuel Type
+
+Up until now, we examine relationship between a variable with price. In this subsection, we address relationship between price and more than one variable, i.e., Gear and Fuel Type.  
+
+```{r}
+carmarket %>%
+  group_by(Fuel_Type, Gear) %>%
+  summarise(Average_Price = mean(Price)) %>%
+  
+  ggplot(.,aes(x=reorder(Fuel_Type, -Average_Price), y = Average_Price, fill= Fuel_Type)) +
+    geom_col() +
+    facet_wrap(~Gear) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90), legend.position = "none") +
+    scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+    labs(title = "Average Price According to the Fuel Type for Different Gear Type",
+         subtitle = st, 
+         x = "Fuel Type",
+         y = "Average Price",
+         Fill = "Fuel Type")
+```
+
+According to the results,
+
+- The most expensive cars are located in Semi-Automatic and Automatic Gear Type with Hybrid Fuel Type.   
+- While the Hybrid Fuel Type is more recent technology, there are no cars in Manual Gear Type. 
+- The least expensive cars are located in Gasoline Fuel type in all Gear Types. 
+
 
 ```{r, echo = FALSE ,include=FALSE}
 carmarket %>%
@@ -421,59 +578,11 @@ carmarket %>%
   geom_tile()+
   scale_fill_gradient(low="white", high="darkslateblue") +
   scale_y_log10()
-  
 ```
 
-### Price Analysis By Gear 
-```{r gear vs price}
-carmarket %>%
-  ggplot(., aes(x = Gear, y = Price, color = Gear)) +
-  geom_jitter() +
-  theme_minimal() +
-  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
-```
+### 2.7 Price Analysis By CCM
 
-### Price Analysis By Horse Power 
-
-```{r}
-#Beygir gücünün factro sırasına göre sıralayalım
-carmarket %>%
-  group_by(Horse_Power) %>%
-  summarize(mean_price = mean(Price)) %>%
-  
-  ggplot(., aes(x=mean_price, y = Horse_Power, fill = Horse_Power)) +
-  geom_col() +
-  theme_minimal() +
-  theme(legend.position = "none") +
-  scale_x_continuous(labels = function(x) format(x, scientific = FALSE)) +
-  labs(title = "Average Price According to the Horse Power",
-       subtitle = st, 
-       x = "Average Price",
-       y = "Horse Power")
-```
-
-### Price Analysis By Body Type
-```{r}
-carmarket %>%
-  group_by(Body_Type) %>%
-  summarize(Average_Price = mean(Price)) %>%
-  
-  ggplot(.,aes(x=reorder(Body_Type, -Average_Price), y = Average_Price, color= Body_Type)) +
-    geom_point(size=7) +
-    geom_segment(aes(x=Body_Type,
-                     xend=Body_Type,
-                     y=0,
-                     yend=Average_Price))+
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 90), legend.position = "none")+
-        labs(title = "Average Price According to the Body Type",
-         subtitle = st, 
-         x = "Body Type",
-         y = "Average Price",
-         Fill = "Body Type")
-```
-
-### Price Analysis By CCM
+The CCM is also important to predict car price, for this reason before to create linear regression model, we want to analyze relationship between Price and CCM.
 
 ```{r}
 carmarket%>% 
@@ -491,14 +600,55 @@ carmarket%>%
          Fill = "CCM")
 ```
 
+### 2.8 Price Analysis By HP and Seller Status
 
-### Seller and Seller Status Relationship 
+Horsepower is a unit of power used to measure the forcefulness of a car's engine.We want to analyze relationship between Price and Horse Power by using Seller Status. 
+
+```{r}
+carmarket %>%
+  group_by(Horse_Power, Seller_Status) %>%
+  summarize(mean_price = mean(Price)) %>%
+  
+  ggplot(., aes(y=mean_price, x = Horse_Power, fill = Horse_Power)) +
+  geom_col() +
+  facet_wrap(~Seller_Status) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  theme(axis.text.x = element_text(angle = 90), legend.position = "none")+
+  labs(title = "Average Price According to the Horse Power",
+       subtitle = st, 
+       x = "Average Price",
+       y = "Horse Power")
+```
+
+```{r}
+carmarket %>%
+  group_by(Horse_Power) %>%
+  summarize(count=n(),
+            Average_Price = mean(Price)) %>%
+  mutate(percentage = 100*round(count/sum(count),3))%>%
+  arrange(desc(percentage)) %>%
+  select(Horse_Power, count,  percentage, Average_Price ) %>%
+  kable(col.names = c("Horse Power","Number of Ad","Percentage", "Average Price")) %>%
+  kable_minimal(full_width = F)
+```
+
+- There are no car advertisement with more than 200 Horse Power in Classic and Damaged Seller Status. 
+- Although there are some car advertisements in 2nd Hand Seller Status, the majority is in 0 Km. 
+- While the 2nd Hand cars category has almost all Horse Power Types, O Km cars category does not contain Horse Power over 325 HP.  
+
+### 2.9 Seller and Seller Status Relationship 
+
+In this online car market data set, there are various sellers and these sellers present different car status such as 0 km, 2nd Hand, Classic, and  Damaged. To see how many status takes place in different seller, we create this subsection. 
+
 
 ```{r seller_status dist}
 carmarket %>%
   group_by(Seller,Seller_Status) %>%
   summarise(count=n()) %>%
   mutate(percentage = 100*count/sum(count)) %>%
+
   
   ggplot(., aes(x = '', y = count, fill = Seller_Status)) +
   geom_bar(width = 1, stat = "identity", position = "fill") +
@@ -511,17 +661,24 @@ carmarket %>%
        fill = "Seller Status")
 ```
 
+- Gallery and Owner mostly sell 2nd Hand cars, whereas Authority sell 0 km cars.
+- There are no seller status, which are Classic and Damaged in the Authority Seller. 
+
 ```{r seller_status dist table}
 carmarket %>%
   group_by(Seller,Seller_Status) %>%
   summarise(count=n()) %>%
-  mutate(percentage = 100*count/sum(count))%>%
+  mutate(percentage = 100*round(count/sum(count), digits = 3))%>%
   select(Seller, Seller_Status, count, percentage)%>%
-  kable(col.names = c("Seller", "Seller Status", "Count", "Percentage"))
+  kable(col.names = c("Seller", "Seller Status", "Count", "Percentage")) %>%
+  kable_minimal(full_width = F)
 ```
 
+To provide clear numerical information about Seller and Seller Status, we also give the number and percentage advertisements according to the Seller and Seller Status. 
 
-### Gear and Brand Relationship
+### 2.10 Gear and Brand Relationship
+
+In this part, we give the relationship between Gear Type and Brand. 
 
 ```{r gear and brand analysis}
 carmarket %>%
@@ -542,43 +699,70 @@ carmarket %>%
        fill = "Gear Type")
 ```
 
-```{r}
-carmarket %>%
-  group_by(Brand, Gear) %>%
-  summarize(gear_type_count = n())  %>%
-  mutate(gear_type_percentage = gear_type_count / sum(gear_type_count)) %>%
-  select(Brand, Gear, gear_type_percentage) %>%
-  pivot_wider(id_cols = Brand, names_from = Gear, values_from = gear_type_percentage)
-```
+The results show that,
 
+- The all cars of the Chyrsler and Volkswagen have only automatic gear type, in the 2020 online car market. 
+- Geely, Lada, and Tofas have only manual gear type.
+- The other car brands have various gear type in their cars.
 
-```{r}
+```{r,include=FALSE}
 merge(carmarket[, .N, by=Color], carmarket[, sapply(.SD, function(x) c(mean=mean(x))), .SDcols=c("Price"), by = Color], by = "Color") %>%
   mutate(Percentage = N / nrow(carmarket) * 100) %>%
   arrange(desc(Percentage)) %>%
-  head(10) %>%
+  #head(10) %>%
   select(Color, V1, Percentage) %>%
-  kable(col.names = c("Color",  "Average Price", "Percentage"))
+  kable(col.names = c("Color",  "Average Price", "Percentage")) %>%
+  kable_styling("striped", full_width = T) %>%
+  scroll_box(width = "100%", height = "400px")
 ```
 
-```{r}
-##TAHA##
-#carmarket[, sapply(.SD, function(x) c(mean=mean(x), count=count(x, sort = TRUE))), .SDcols=c("Price"), by = Brand]
+### 2.11 The Most Popular Car Colors
 
+```{r}
 carmarket %>%
   group_by(Color) %>%
   summarize(count=n(),Min_Price=min(Price),Average_Price = mean(Price),Max_Price=max(Price) ) %>%
   mutate(percentage = 100*round(count/sum(count),3))%>%
   arrange(desc(percentage)) %>%
-   head(10) %>%
-  select(Color, count,  percentage, Min_Price, Average_Price, Max_Price ) %>%
-  kable(col.names = c("Color","Number of Ad","Percentage",  "Minimum Price", "Average Price", "Maximum Price"))
+  head(10) %>%
+  ggplot(.,aes(x=percentage, y=reorder(Color,percentage), fill=percentage)) +
+  geom_col() +
+  scale_fill_gradient("percentage", low="thistle1", high="thistle4") +
+  geom_text(aes(label = paste(format(percentage,digits=1), "%")), size=4, position = position_stack(vjust = 0.5)) +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(vjust = 0.5)) +
+  labs(x = "Percentages",
+       y = "Colors",
+       title = "The Most Popular Colors",
+       subtitle = st)
 ```
 
 
+```{r}
+carmarket %>%
+  group_by(Color) %>%
+  summarize(count=n(),Min_Price=min(Price),Average_Price = mean(Price),Max_Price=max(Price) ) %>%
+  mutate(percentage = 100*round(count/sum(count),3))%>%
+  arrange(desc(percentage)) %>%
+  #head(10) %>%
+  select(Color, count,  percentage, Min_Price, Average_Price, Max_Price ) %>%
+  kable(col.names = c("Color","Number of Ad","Percentage",  "Minimum Price", "Average Price", "Maximum Price")) %>%
+  kable_styling("striped", full_width = T) %>%
+  scroll_box(width = "100%", height = "400px")
+```
 
+
+According to the result, the most popular color in car is *White*. The second one is *Black*. These results are as expected. 
 
 ## 3. Conclusion
 
+In this *Explanatory Data Analysis* we investigate the 2020 online car market data in Turkey. The main purpose of this study is to find the relationship between features and Price of the cars. Each car has different properties, for example body type, gear type, color, etc. These properties affect both the Price and the demand of car market in Turkey. For this reason, before conducting models for forecasting car price, first, variables and their sub-groups are analyzed. Then, graphical visualizations are introduced to present more understandable information about dataset. In the next section, some models to forecast price of cars will be addressed. 
+
 ## References
 
+[Kaggle Notebook](https://www.kaggle.com/alpertemel/turkey-car-market)<br>
+[Color Cheatsheet](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf)<br>
+[Car Feature Explanations](https://www.cartrade.com/blog/2013/auto-guides/different-car-body-types-494.html)<br>
+[Kable Styling](https://www.rdocumentation.org/packages/kableExtra/versions/1.2.1/topics/kable_styling)<br>
+[ggplot visualizations](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)<br>
+[Lecture Notes](https://boun-ie48a.github.io/)<br>

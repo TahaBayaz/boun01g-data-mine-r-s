@@ -560,8 +560,8 @@ We can check for the combination `Vehicle_Type` and `Vehicle_Type_Group` columns
 
 Now, our data is ready for making further analysis. So, we need to export the data for explanatory data analysis (EDA).
 
-```{r data export}
-write.csv(carmarket, file = "turkey_car_market_EDA.csv")
+```{r data export, eval = FALSE}
+saveRDS(carmarket, file = "turkey_car_market_EDA")
 ```
 
 For the analysis, you can follow this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExplanatoryDataAnalysis.html)
