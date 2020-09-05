@@ -18,7 +18,7 @@ If you want to make your own analysis, you can download and get information abou
 
 ## PROJECT
 
-#### Data for the Project
+#### Project Data
 
 You can find the data from this [link](https://www.kaggle.com/alpertemel/turkey-car-market-2020)
 
@@ -30,7 +30,7 @@ The project proposal is [here](https://pjournal.github.io/boun01g-data-mine-r-s/
 
 You can reach the preprocessing steps from this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Preprocessing.html)
 
-#### Explanatory Data Analysis (EDA)
+#### Exploratory Data Analysis  (EDA)
 
 You can reach the EDA steps from this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExplanatoryDataAnalysis.html)
 
