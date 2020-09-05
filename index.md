@@ -8,7 +8,7 @@
 
 ## ASSIGNMENT
 
-In this assignment, the main purpose is to make an exploratory data analysis by using the Airbnb dataset which has neighbourhood/neighbourhood_group, price, room_type etc.
+In this assignment, the main purpose is to make an exploratory data analysis by using the **Airbnb** dataset which has neighbourhood/neighbourhood_group, price, room_type etc.
 
 - Project Data: [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
 - Exploratory Data Analysis (EDA): [html](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb.html)/[pdf](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb.pdf)
@@ -17,7 +17,7 @@ Note that like exploratory report, we prepare rmd file for Shiny app to present 
 
 ## PROJECT
 
-In this project, the main purpose is to first make an exploratory data analysis, and then forecast car prices by using 2020 Turkey Car Market dataset which has many variables of cars.
+In this project, the main purpose is to first make an exploratory data analysis, and then forecast car prices by using **2020 Turkey Car Market** dataset which has many variables of cars.
 
 - Project Data: [html](https://www.kaggle.com/alpertemel/turkey-car-market-2020)
 - Project Proposal: [html](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Proposal.html)
