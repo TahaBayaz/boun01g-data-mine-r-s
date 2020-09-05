@@ -23,7 +23,8 @@ In this project, the main purpose is to first make an exploratory data analysis,
 - Project Proposal: [html](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Proposal.html)
 - Preprocessing: [html](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Preprocessing.html)
 - Exploratory Data Analysis (EDA): [html](https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExploratoryDataAnalysis.html)
-- Shiny App: You can run the shiny app by just typing the following code in your own R-console; **`shiny::runGitHub("pjournal/boun01g-data-mine-r-s", subdir = "Project", ref = "gh-pages")`** *(Note that the app requires 'data.table' and 'tidyverse' libraries.)*
+- Shiny App: You can run the shiny app by just typing the following code in your own R-console; **`shiny::runGitHub("pjournal/boun01g-data-mine-r-s", subdir = "Project", ref = "gh-pages")`**<br> 
+*(Note that the app requires 'data.table' and 'tidyverse' libraries.)*
 - Final Report:
 
 ## BONUS PROJECT
