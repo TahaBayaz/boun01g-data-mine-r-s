@@ -1,7 +1,7 @@
 ## We are Data Mine'R's!!
 
 ### Group Members
-- Can AYTÖRE
+- Can AYTÖRE!
 - Ebru GEÇİCİ 
 - Mustafa KESER
 - Nazlı GÜL 
