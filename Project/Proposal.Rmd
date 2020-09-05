@@ -1,14 +1,17 @@
 ---
 title: "Project Proposal"
 author: "Data Mine'R's"
-output: 
+output:
   html_document:
-    css: style.css
-    toc: true
+    highlight: tango
+    theme: united
+    toc: yes
     toc_depth: 3
     toc_float:
-      collapsed: true
-      smooth_scroll: false
+      collapsed: no
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
 date: "`r format(Sys.time(), '%d %B %Y')`"
 ---
 
