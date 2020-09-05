@@ -1638,9 +1638,9 @@ body {
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>file &lt;-<span class="st"> </span><span class="cf">if</span>(<span class="kw">file.exists</span>(<span class="st">&quot;turkey_car_market.csv&quot;</span>)) {</span>
 <span id="cb2-2"><a href="#cb2-2"></a>  <span class="st">&quot;turkey_car_market.csv&quot;</span></span>
 <span id="cb2-3"><a href="#cb2-3"></a>} <span class="cf">else</span> {</span>
-<span id="cb2-4"><a href="#cb2-4"></a>  <span class="kw">url</span>(<span class="st">&#39;https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market.csv&#39;</span>)</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="st">&#39;https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market.csv&#39;</span></span>
 <span id="cb2-5"><a href="#cb2-5"></a>}</span>
-<span id="cb2-6"><a href="#cb2-6"></a>car_market =<span class="st"> </span><span class="kw">fread</span>(file)</span></code></pre></div>
+<span id="cb2-6"><a href="#cb2-6"></a>carmarket =<span class="st"> </span><span class="kw">fread</span>(file)</span></code></pre></div>
 </div>
 <div id="data.table-object" class="section level2">
 <h2>data.table object</h2>
@@ -1656,11 +1656,11 @@ body {
 ## 4:          4     D   Antalya
 ## 5:          5     E   Hakkari</code></pre>
 <p>We can use all functions in base R with data.table object like:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">nrow</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">nrow</span>(carmarket)</span></code></pre></div>
 <pre><code>## [1] 9044</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">ncol</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="kw">ncol</span>(carmarket)</span></code></pre></div>
 <pre><code>## [1] 15</code></pre>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">summary</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">summary</span>(carmarket)</span></code></pre></div>
 <pre><code>##  Ä°lan Tarihi          Marka           Arac Tip Grubu       Arac Tip        
 ##  Length:9044        Length:9044        Length:9044        Length:9044       
 ##  Class :character   Class :character   Class :character   Class :character  
@@ -1689,7 +1689,7 @@ body {
 ##                     Mean   : 135813   Mean   : 148070  
 ##                     3rd Qu.: 194130   3rd Qu.: 153562  
 ##                     Max.   :1850000   Max.   :5086500</code></pre>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">str</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">str</span>(carmarket)</span></code></pre></div>
 <pre><code>## Classes &#39;data.table&#39; and &#39;data.frame&#39;:   9044 obs. of  15 variables:
 ##  $ Ä°lan Tarihi  : chr  &quot;27/05/2020&quot; &quot;16/06/2020&quot; &quot;14/06/2020&quot; &quot;11/06/2020&quot; ...
 ##  $ Marka         : chr  &quot;Jaguar&quot; &quot;Acura&quot; &quot;Acura&quot; &quot;Acura&quot; ...
@@ -1707,7 +1707,7 @@ body {
 ##  $ Km            : int  26100 127000 175000 325 207000 320000 183 79000 15662 31971 ...
 ##  $ Fiyat         : int  634500 151500 19750 52000 148750 42500 170000 82500 189000 189000 ...
 ##  - attr(*, &quot;.internal.selfref&quot;)=&lt;externalptr&gt;</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">head</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">head</span>(carmarket)</span></code></pre></div>
 <pre><code>##    Ä°lan Tarihi  Marka Arac Tip Grubu            Arac Tip Model YÄ±l
 ## 1:   27/05/2020 Jaguar             XF 2.0 D Prestige Plus       2017
 ## 2:   16/06/2020  Acura             CL                   -       2015
@@ -1736,7 +1736,7 @@ body {
 <div id="filtering" class="section level3">
 <h3>Filtering</h3>
 <p>For example, if we want to get all records whose prices(<code>Fiyat</code> column) are less than 50000 Turkish Liras, we can use this code:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>car_market[Fiyat <span class="op">&lt;</span><span class="st"> </span><span class="dv">50000</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>carmarket[Fiyat <span class="op">&lt;</span><span class="st"> </span><span class="dv">50000</span>]</span></code></pre></div>
 <pre><code>##       Ä°lan Tarihi  Marka Arac Tip Grubu       Arac Tip Model YÄ±l YakÄ±t Turu
 ##    1:   14/06/2020  Acura             CL            2.2       1994  Benzin/LPG
 ##    2:   04/06/2020  Acura             CL            2.2       1999       Dizel
@@ -1773,9 +1773,9 @@ body {
 ## 1516: Sahibinden 2. El 135000 19000
 ## 1517:  Galeriden 2. El 250000 11000
 ## 1518:  Galeriden 2. El     11 15750</code></pre>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co">#car_market[car_market$Fiyat &lt; 50000,] in base R</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="co">#carmarket[carmarket$Fiyat &lt; 50000,] in base R</span></span></code></pre></div>
 <p>Also we can give more conditions with <code>&amp;</code> or <code>|</code> operators.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>car_market[Fiyat <span class="op">&lt;</span><span class="st"> </span><span class="dv">50000</span> <span class="op">&amp;</span><span class="st"> </span>Marka <span class="op">==</span><span class="st"> &#39;Acura&#39;</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>carmarket[Fiyat <span class="op">&lt;</span><span class="st"> </span><span class="dv">50000</span> <span class="op">&amp;</span><span class="st"> </span>Marka <span class="op">==</span><span class="st"> &#39;Acura&#39;</span>]</span></code></pre></div>
 <pre><code>##    Ä°lan Tarihi Marka Arac Tip Grubu Arac Tip Model YÄ±l YakÄ±t Turu      Vites
 ## 1:   14/06/2020 Acura             CL      2.2       1994  Benzin/LPG DÃ¼z Vites
 ## 2:   04/06/2020 Acura             CL      2.2       1999       Dizel DÃ¼z Vites
@@ -1800,9 +1800,9 @@ body {
 ## 5:  18000 34500
 ## 6: 150000 34000
 ## 7: 150000 34000</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="co">#car_market[car_market$Fiyat &lt; 50000 &amp; car_market$Marka == &#39;Acura&#39;,] in base R</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="co">#carmarket[carmarket$Fiyat &lt; 50000 &amp; carmarket$Marka == &#39;Acura&#39;,] in base R</span></span></code></pre></div>
 <p>If we want to get all rows except this condition we can use <code>!</code> sign.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>car_market[<span class="op">!</span>(Fiyat <span class="op">&lt;</span><span class="st"> </span><span class="dv">50000</span> <span class="op">&amp;</span><span class="st"> </span>Marka <span class="op">==</span><span class="st"> &#39;Acura&#39;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>carmarket[<span class="op">!</span>(Fiyat <span class="op">&lt;</span><span class="st"> </span><span class="dv">50000</span> <span class="op">&amp;</span><span class="st"> </span>Marka <span class="op">==</span><span class="st"> &#39;Acura&#39;</span>)]</span></code></pre></div>
 <pre><code>##       Ä°lan Tarihi  Marka Arac Tip Grubu            Arac Tip Model YÄ±l
 ##    1:   27/05/2020 Jaguar             XF 2.0 D Prestige Plus       2017
 ##    2:   16/06/2020  Acura             CL                   -       2015
@@ -1844,10 +1844,10 @@ body {
 <h3>Selecting</h3>
 <p>For example, we need to get the head of the colours (<code>Renk</code> column). To do so, we can use these notations:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>cols =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Renk&quot;</span>)</span>
-<span id="cb23-2"><a href="#cb23-2"></a><span class="kw">head</span>(car_market[, Renk])</span></code></pre></div>
+<span id="cb23-2"><a href="#cb23-2"></a><span class="kw">head</span>(carmarket[, Renk])</span></code></pre></div>
 <pre><code>## [1] &quot;Lacivert&quot;   &quot;Mavi&quot;       &quot;Turkuaz&quot;    &quot;Kahverengi&quot; &quot;Beyaz&quot;     
 ## [6] &quot;Lacivert&quot;</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">head</span>(car_market[, .(Renk)])</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="kw">head</span>(carmarket[, .(Renk)])</span></code></pre></div>
 <pre><code>##          Renk
 ## 1:   Lacivert
 ## 2:       Mavi
@@ -1855,7 +1855,7 @@ body {
 ## 4: Kahverengi
 ## 5:      Beyaz
 ## 6:   Lacivert</code></pre>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">head</span>(car_market[, <span class="kw">list</span>(Renk)])</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">head</span>(carmarket[, <span class="kw">list</span>(Renk)])</span></code></pre></div>
 <pre><code>##          Renk
 ## 1:   Lacivert
 ## 2:       Mavi
@@ -1863,7 +1863,7 @@ body {
 ## 4: Kahverengi
 ## 5:      Beyaz
 ## 6:   Lacivert</code></pre>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">head</span>(car_market[, <span class="kw">c</span>(<span class="st">&quot;Renk&quot;</span>), <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a><span class="kw">head</span>(carmarket[, <span class="kw">c</span>(<span class="st">&quot;Renk&quot;</span>), <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
 <pre><code>##          Renk
 ## 1:   Lacivert
 ## 2:       Mavi
@@ -1871,7 +1871,7 @@ body {
 ## 4: Kahverengi
 ## 5:      Beyaz
 ## 6:   Lacivert</code></pre>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="kw">head</span>(car_market[, <span class="dv">10</span>, <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a><span class="kw">head</span>(carmarket[, <span class="dv">10</span>, <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
 <pre><code>##          Renk
 ## 1:   Lacivert
 ## 2:       Mavi
@@ -1879,7 +1879,7 @@ body {
 ## 4: Kahverengi
 ## 5:      Beyaz
 ## 6:   Lacivert</code></pre>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">head</span>(car_market[, cols, <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="kw">head</span>(carmarket[, cols, <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
 <pre><code>##          Renk
 ## 1:   Lacivert
 ## 2:       Mavi
@@ -1887,7 +1887,7 @@ body {
 ## 4: Kahverengi
 ## 5:      Beyaz
 ## 6:   Lacivert</code></pre>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">head</span>(car_market[, ..cols])</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="kw">head</span>(carmarket[, ..cols])</span></code></pre></div>
 <pre><code>##          Renk
 ## 1:   Lacivert
 ## 2:       Mavi
@@ -1896,11 +1896,11 @@ body {
 ## 5:      Beyaz
 ## 6:   Lacivert</code></pre>
 <p>We used the <code>with</code> argument. If we assign <em>FALSE</em> to that argument, it uses the character as the column name. <code>.()</code> and <code>list()</code> is used for selecting the columns. As you can see, the first one returns a vector, not a data.table object. With that usage, we can not use data.table operations like:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="kw">nrow</span>(<span class="kw">head</span>(car_market[, Renk]))</span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a><span class="kw">nrow</span>(<span class="kw">head</span>(carmarket[, Renk]))</span></code></pre></div>
 <pre><code>## NULL</code></pre>
 <p>We can select multiple columns with these usages:</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>cols =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Renk&quot;</span>, <span class="st">&quot;Fiyat&quot;</span>)</span>
-<span id="cb39-2"><a href="#cb39-2"></a><span class="kw">head</span>(car_market[, .(Renk, Fiyat)])</span></code></pre></div>
+<span id="cb39-2"><a href="#cb39-2"></a><span class="kw">head</span>(carmarket[, .(Renk, Fiyat)])</span></code></pre></div>
 <pre><code>##          Renk  Fiyat
 ## 1:   Lacivert 634500
 ## 2:       Mavi 151500
@@ -1908,7 +1908,7 @@ body {
 ## 4: Kahverengi  52000
 ## 5:      Beyaz 148750
 ## 6:   Lacivert  42500</code></pre>
-<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">head</span>(car_market[, <span class="kw">list</span>(Renk, Fiyat)])</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="kw">head</span>(carmarket[, <span class="kw">list</span>(Renk, Fiyat)])</span></code></pre></div>
 <pre><code>##          Renk  Fiyat
 ## 1:   Lacivert 634500
 ## 2:       Mavi 151500
@@ -1916,7 +1916,7 @@ body {
 ## 4: Kahverengi  52000
 ## 5:      Beyaz 148750
 ## 6:   Lacivert  42500</code></pre>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="kw">head</span>(car_market[, <span class="kw">c</span>(<span class="st">&quot;Renk&quot;</span>, <span class="st">&quot;Fiyat&quot;</span>), <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a><span class="kw">head</span>(carmarket[, <span class="kw">c</span>(<span class="st">&quot;Renk&quot;</span>, <span class="st">&quot;Fiyat&quot;</span>), <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
 <pre><code>##          Renk  Fiyat
 ## 1:   Lacivert 634500
 ## 2:       Mavi 151500
@@ -1924,7 +1924,7 @@ body {
 ## 4: Kahverengi  52000
 ## 5:      Beyaz 148750
 ## 6:   Lacivert  42500</code></pre>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="kw">head</span>(car_market[, <span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">15</span>), <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1"></a><span class="kw">head</span>(carmarket[, <span class="kw">c</span>(<span class="dv">10</span>, <span class="dv">15</span>), <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
 <pre><code>##          Renk  Fiyat
 ## 1:   Lacivert 634500
 ## 2:       Mavi 151500
@@ -1932,7 +1932,7 @@ body {
 ## 4: Kahverengi  52000
 ## 5:      Beyaz 148750
 ## 6:   Lacivert  42500</code></pre>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="kw">head</span>(car_market[, cols, <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1"></a><span class="kw">head</span>(carmarket[, cols, <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
 <pre><code>##          Renk  Fiyat
 ## 1:   Lacivert 634500
 ## 2:       Mavi 151500
@@ -1940,7 +1940,7 @@ body {
 ## 4: Kahverengi  52000
 ## 5:      Beyaz 148750
 ## 6:   Lacivert  42500</code></pre>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="kw">head</span>(car_market[, ..cols])</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="kw">head</span>(carmarket[, ..cols])</span></code></pre></div>
 <pre><code>##          Renk  Fiyat
 ## 1:   Lacivert 634500
 ## 2:       Mavi 151500
@@ -1949,7 +1949,7 @@ body {
 ## 5:      Beyaz 148750
 ## 6:   Lacivert  42500</code></pre>
 <p>We can select multiple rows with using slicing or excluding the columns with <code>!</code> sign. For example:</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a><span class="kw">head</span>(car_market[, Marka<span class="op">:</span>Fiyat])</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1"></a><span class="kw">head</span>(carmarket[, Marka<span class="op">:</span>Fiyat])</span></code></pre></div>
 <pre><code>##     Marka Arac Tip Grubu            Arac Tip Model YÄ±l YakÄ±t Turu
 ## 1: Jaguar             XF 2.0 D Prestige Plus       2017       Dizel
 ## 2:  Acura             CL                   -       2015       Dizel
@@ -1971,7 +1971,7 @@ body {
 ## 4: Sahibinden 2. El    325  52000
 ## 5: Sahibinden 2. El 207000 148750
 ## 6:  Galeriden 2. El 320000  42500</code></pre>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="kw">head</span>(car_market[, <span class="op">!</span><span class="kw">c</span>(<span class="st">&quot;Ä°lan Tarihi&quot;</span>), <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1"></a><span class="kw">head</span>(carmarket[, <span class="op">!</span><span class="kw">c</span>(<span class="st">&quot;Ä°lan Tarihi&quot;</span>), <span class="dt">with =</span> <span class="ot">FALSE</span>])</span></code></pre></div>
 <pre><code>##     Marka Arac Tip Grubu            Arac Tip Model YÄ±l YakÄ±t Turu
 ## 1: Jaguar             XF 2.0 D Prestige Plus       2017       Dizel
 ## 2:  Acura             CL                   -       2015       Dizel
@@ -1994,7 +1994,7 @@ body {
 ## 5: Sahibinden 2. El 207000 148750
 ## 6:  Galeriden 2. El 320000  42500</code></pre>
 <p>In selecting the columns we can use some operations like <code>%like%</code>. The usage of this operator is like this:</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>car_market[, <span class="kw">names</span>(car_market) <span class="op">%like%</span><span class="st"> &#39;Arac&#39;</span>, with =<span class="st"> </span><span class="ot">FALSE</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1"></a>carmarket[, <span class="kw">names</span>(carmarket) <span class="op">%like%</span><span class="st"> &#39;Arac&#39;</span>, with =<span class="st"> </span><span class="ot">FALSE</span>]</span></code></pre></div>
 <pre><code>##       Arac Tip Grubu            Arac Tip
 ##    1:             XF 2.0 D Prestige Plus
 ##    2:             CL                   -
@@ -2008,9 +2008,9 @@ body {
 ## 9043:         Kartal      Kartal 5 Vites
 ## 9044:         Kartal      Kartal 5 Vites</code></pre>
 <p>We can rename the columns with <code>setnames</code> function like:</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="kw">setnames</span>(car_market, <span class="kw">c</span>(<span class="st">&quot;Ä°lan Tarihi&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;Date&quot;</span>))</span>
-<span id="cb57-2"><a href="#cb57-2"></a><span class="kw">setnames</span>(car_market, <span class="kw">c</span>(<span class="st">&quot;Model YÄ±l&quot;</span>, <span class="st">&quot;YakÄ±t Turu&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;Model_Year&quot;</span>, <span class="st">&quot;Fuel_Type&quot;</span>))</span>
-<span id="cb57-3"><a href="#cb57-3"></a><span class="kw">head</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1"></a><span class="kw">setnames</span>(carmarket, <span class="kw">c</span>(<span class="st">&quot;Ä°lan Tarihi&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;Date&quot;</span>))</span>
+<span id="cb57-2"><a href="#cb57-2"></a><span class="kw">setnames</span>(carmarket, <span class="kw">c</span>(<span class="st">&quot;Model YÄ±l&quot;</span>, <span class="st">&quot;YakÄ±t Turu&quot;</span>), <span class="kw">c</span>(<span class="st">&quot;Model_Year&quot;</span>, <span class="st">&quot;Fuel_Type&quot;</span>))</span>
+<span id="cb57-3"><a href="#cb57-3"></a><span class="kw">head</span>(carmarket)</span></code></pre></div>
 <pre><code>##          Date  Marka Arac Tip Grubu            Arac Tip Model_Year  Fuel_Type
 ## 1: 27/05/2020 Jaguar             XF 2.0 D Prestige Plus       2017      Dizel
 ## 2: 16/06/2020  Acura             CL                   -       2015      Dizel
@@ -2033,7 +2033,7 @@ body {
 ## 5: Sahibinden 2. El 207000 148750
 ## 6:  Galeriden 2. El 320000  42500</code></pre>
 <p>We can sort the data with <code>setorder</code> function like:</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="kw">head</span>(<span class="kw">setorder</span>(car_market, Date))</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1"></a><span class="kw">head</span>(<span class="kw">setorder</span>(carmarket, Date))</span></code></pre></div>
 <pre><code>##          Date     Marka Arac Tip Grubu                   Arac Tip Model_Year
 ## 1: 01/04/2020     Acura             CL                     DiÄŸer       2004
 ## 2: 01/04/2020      Audi             A4                    2.0 TDI       2014
@@ -2056,7 +2056,7 @@ body {
 ## 5:             Sedan  Galeriden 2. El 160000 192500
 ## 6:      Arazi AracÄ± Sahibinden 2. El 192500  80000</code></pre>
 <p>It orders the data ascending by default. We can use <code>-</code> sign for descending and can order the data with multiple columns like:</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a><span class="kw">head</span>(<span class="kw">setorder</span>(car_market, Date, <span class="op">-</span>Marka))</span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1"></a><span class="kw">head</span>(<span class="kw">setorder</span>(carmarket, Date, <span class="op">-</span>Marka))</span></code></pre></div>
 <pre><code>##          Date   Marka Arac Tip Grubu                    Arac Tip Model_Year
 ## 1: 01/04/2020   Skoda          Rapid                1.2 Ambition       2015
 ## 2: 01/04/2020   Skoda        Octavia             1.6 TDI Optimal       2016
@@ -2082,7 +2082,7 @@ body {
 <div id="grouping" class="section level3">
 <h3>Grouping</h3>
 <p>We can group the data with using the <code>by</code> parameter. We can get average prices for each brand like this:</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>car_market[, .(<span class="dt">mean_price=</span> <span class="kw">mean</span>(Fiyat)), by =<span class="st"> </span>Marka]</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1"></a>carmarket[, .(<span class="dt">mean_price=</span> <span class="kw">mean</span>(Fiyat)), by =<span class="st"> </span>Marka]</span></code></pre></div>
 <pre><code>##          Marka mean_price
 ##  1:      Skoda  128163.50
 ##  2:       Seat  120630.11
@@ -2122,7 +2122,7 @@ body {
 ## 36:      Isuzu  119788.89
 ##          Marka mean_price</code></pre>
 <p>We can summarize the data for more than one column with respect to more than one column.</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>car_market[, .(<span class="dt">mean =</span> <span class="kw">mean</span>(Fiyat), <span class="dt">max =</span> <span class="kw">max</span>(Fiyat)), by =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Marka&quot;</span>, <span class="st">&quot;Arac Tip&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1"></a>carmarket[, .(<span class="dt">mean =</span> <span class="kw">mean</span>(Fiyat), <span class="dt">max =</span> <span class="kw">max</span>(Fiyat)), by =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Marka&quot;</span>, <span class="st">&quot;Arac Tip&quot;</span>)]</span></code></pre></div>
 <pre><code>##         Marka                       Arac Tip     mean    max
 ##    1:   Skoda                   1.2 Ambition  70500.0  92000
 ##    2:   Skoda                1.6 TDI Optimal 144287.5 146500
@@ -2136,7 +2136,7 @@ body {
 ## 1905: Peugeot 1.6 HDi Premium Pack 112 bg A. 118000.0 118000
 ## 1906: Hyundai                  1.6 CRDi Team  80000.0  80000</code></pre>
 <p>We can get total number of rows with <code>.N</code> like:</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>car_market[, .N, by =<span class="st"> </span>Marka]</span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1"></a>carmarket[, .N, by =<span class="st"> </span>Marka]</span></code></pre></div>
 <pre><code>##          Marka    N
 ##  1:      Skoda  259
 ##  2:       Seat  151
@@ -2180,10 +2180,10 @@ body {
 <div id="index-operators" class="section level2">
 <h2>Index Operators</h2>
 <p>If we use the index of the data, we can perform better processes with respect to time. To set a column to the index we can use <code>setkey()</code> function like:</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="kw">setkey</span>(car_market, Date)</span>
-<span id="cb69-2"><a href="#cb69-2"></a><span class="kw">key</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1"></a><span class="kw">setkey</span>(carmarket, Date)</span>
+<span id="cb69-2"><a href="#cb69-2"></a><span class="kw">key</span>(carmarket)</span></code></pre></div>
 <pre><code>## [1] &quot;Date&quot;</code></pre>
-<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a><span class="kw">head</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1"></a><span class="kw">head</span>(carmarket)</span></code></pre></div>
 <pre><code>##          Date   Marka Arac Tip Grubu                    Arac Tip Model_Year
 ## 1: 01/04/2020   Skoda          Rapid                1.2 Ambition       2015
 ## 2: 01/04/2020   Skoda        Octavia             1.6 TDI Optimal       2016
@@ -2206,11 +2206,11 @@ body {
 ## 5:         Crossover Sahibinden 2. El  97000 166000
 ## 6:             Sedan Sahibinden 2. El    179  65000</code></pre>
 <p>As you can see, the data is sorted after by key setting it. Alse we can give multiple index like:</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a><span class="kw">setkey</span>(car_market, Date, Marka)</span>
-<span id="cb73-2"><a href="#cb73-2"></a><span class="kw">key</span>(car_market)</span></code></pre></div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb73-1"><a href="#cb73-1"></a><span class="kw">setkey</span>(carmarket, Date, Marka)</span>
+<span id="cb73-2"><a href="#cb73-2"></a><span class="kw">key</span>(carmarket)</span></code></pre></div>
 <pre><code>## [1] &quot;Date&quot;  &quot;Marka&quot;</code></pre>
 <p>We can group the data by the key(s) with <code>bykey</code> argument like:</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a><span class="kw">head</span>(car_market[, .(<span class="dt">mean_price=</span> <span class="kw">mean</span>(Fiyat)), <span class="dt">by =</span> Date])</span></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1"></a><span class="kw">head</span>(carmarket[, .(<span class="dt">mean_price=</span> <span class="kw">mean</span>(Fiyat)), <span class="dt">by =</span> Date])</span></code></pre></div>
 <pre><code>##          Date mean_price
 ## 1: 01/04/2020  120929.03
 ## 2: 01/05/2020  224372.28
@@ -2224,7 +2224,7 @@ body {
 <div id="adding-columns" class="section level3">
 <h3>Adding Columns</h3>
 <p>We can create columns in data.table package. To do so we need to use <code>:=</code> operator like:</p>
-<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a><span class="kw">head</span>(car_market[, <span class="dt">fpk :=</span> Fiyat <span class="op">/</span><span class="st"> </span>Km])</span></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1"></a><span class="kw">head</span>(carmarket[, <span class="dt">fpk :=</span> Fiyat <span class="op">/</span><span class="st"> </span>Km])</span></code></pre></div>
 <pre><code>##          Date     Marka Arac Tip Grubu                   Arac Tip Model_Year
 ## 1: 01/04/2020     Acura             CL                     DiÄŸer       2004
 ## 2: 01/04/2020      Audi             A4                    2.0 TDI       2014
@@ -2247,7 +2247,7 @@ body {
 ## 5:             Sedan  Galeriden 2. El 160000 192500 1.2031250
 ## 6:      Arazi AracÄ± Sahibinden 2. El 192500  80000 0.4155844</code></pre>
 <p>We can also create multiple columns.</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a><span class="kw">head</span>(car_market[, <span class="kw">c</span>(<span class="st">&quot;kpf&quot;</span>, <span class="st">&quot;full_vehicle_type&quot;</span>) <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">list</span>(Km <span class="op">/</span><span class="st"> </span>Fiyat, <span class="kw">paste</span>(<span class="st">`</span><span class="dt">Arac Tip Grubu</span><span class="st">`</span>, <span class="st">`</span><span class="dt">Arac Tip</span><span class="st">`</span>))])</span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1"></a><span class="kw">head</span>(carmarket[, <span class="kw">c</span>(<span class="st">&quot;kpf&quot;</span>, <span class="st">&quot;full_vehicle_type&quot;</span>) <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">list</span>(Km <span class="op">/</span><span class="st"> </span>Fiyat, <span class="kw">paste</span>(<span class="st">`</span><span class="dt">Arac Tip Grubu</span><span class="st">`</span>, <span class="st">`</span><span class="dt">Arac Tip</span><span class="st">`</span>))])</span></code></pre></div>
 <pre><code>##          Date     Marka Arac Tip Grubu                   Arac Tip Model_Year
 ## 1: 01/04/2020     Acura             CL                     DiÄŸer       2004
 ## 2: 01/04/2020      Audi             A4                    2.0 TDI       2014
@@ -2277,7 +2277,7 @@ body {
 ## 5: 3 Serisi 3.20i ED EfficientDynamics
 ## 6:                    Captiva 2.0 D LT</code></pre>
 <p>We can write sub queries like in SQL. We can show it from the code above:</p>
-<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a>car_market[, <span class="kw">c</span>(<span class="st">&quot;kpf&quot;</span>, <span class="st">&quot;full_vehicle_type&quot;</span>) <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">list</span>(Km <span class="op">/</span><span class="st"> </span>Fiyat, <span class="kw">paste</span>(<span class="st">`</span><span class="dt">Arac Tip Grubu</span><span class="st">`</span>, <span class="st">`</span><span class="dt">Arac Tip</span><span class="st">`</span>))][, .(kpf, full_vehicle_type)]</span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1"></a>carmarket[, <span class="kw">c</span>(<span class="st">&quot;kpf&quot;</span>, <span class="st">&quot;full_vehicle_type&quot;</span>) <span class="op">:</span><span class="er">=</span><span class="st"> </span><span class="kw">list</span>(Km <span class="op">/</span><span class="st"> </span>Fiyat, <span class="kw">paste</span>(<span class="st">`</span><span class="dt">Arac Tip Grubu</span><span class="st">`</span>, <span class="st">`</span><span class="dt">Arac Tip</span><span class="st">`</span>))][, .(kpf, full_vehicle_type)]</span></code></pre></div>
 <pre><code>##              kpf                   full_vehicle_type
 ##    1:  3.0909091                           CL DiÄŸer
 ##    2:  0.9065156                          A4 2.0 TDI
@@ -2294,22 +2294,22 @@ body {
 <div id="aggregation" class="section level3">
 <h3>Aggregation</h3>
 <p>For the creation of new columns, we can use aggregate functions like min, max etc.</p>
-<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>car_market[, .(<span class="dt">mean =</span> <span class="kw">mean</span>(Fiyat, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</span>
+<div class="sourceCode" id="cb83"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1"></a>carmarket[, .(<span class="dt">mean =</span> <span class="kw">mean</span>(Fiyat, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</span>
 <span id="cb83-2"><a href="#cb83-2"></a><span class="dt">median =</span> <span class="kw">median</span>(Fiyat, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</span>
 <span id="cb83-3"><a href="#cb83-3"></a><span class="dt">min =</span> <span class="kw">min</span>(Fiyat, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>),</span>
 <span id="cb83-4"><a href="#cb83-4"></a><span class="dt">max =</span> <span class="kw">max</span>(Fiyat, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))]</span></code></pre></div>
 <pre><code>##        mean median  min     max
 ## 1: 148069.6  95500 5500 5086500</code></pre>
 <p>We can summarize multiple columns like:</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>car_market[, .(<span class="kw">mean</span>(Fiyat), <span class="kw">mean</span>(Km))]</span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1"></a>carmarket[, .(<span class="kw">mean</span>(Fiyat), <span class="kw">mean</span>(Km))]</span></code></pre></div>
 <pre><code>##          V1       V2
 ## 1: 148069.6 135812.8</code></pre>
 <p>If we need to apply aggregation for more columns, we can use <code>.SD</code> and <code>.SDcols</code>. .SD means ‘Subset of Data’. If we don’t use .SDcols parameter, it includes all columns. If we use .SDcols, it applies that process for these columns.</p>
-<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>car_market[, <span class="kw">lapply</span>(.SD, mean), .SDcols =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Fiyat&quot;</span>, <span class="st">&quot;Km&quot;</span>)]</span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1"></a>carmarket[, <span class="kw">lapply</span>(.SD, mean), .SDcols =<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Fiyat&quot;</span>, <span class="st">&quot;Km&quot;</span>)]</span></code></pre></div>
 <pre><code>##       Fiyat       Km
 ## 1: 148069.6 135812.8</code></pre>
 <p>Also, we can have multiple summarize function in the same line like:</p>
-<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1"></a>car_market[, <span class="kw">sapply</span>(.SD, <span class="cf">function</span>(x) <span class="kw">c</span>(<span class="dt">mean=</span><span class="kw">mean</span>(x), <span class="dt">median=</span><span class="kw">median</span>(x)))]</span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1"></a>carmarket[, <span class="kw">sapply</span>(.SD, <span class="cf">function</span>(x) <span class="kw">c</span>(<span class="dt">mean=</span><span class="kw">mean</span>(x), <span class="dt">median=</span><span class="kw">median</span>(x)))]</span></code></pre></div>
 <pre><code>##        Date Marka Arac Tip Grubu Arac Tip Model_Year Fuel_Type Vites CCM
 ## mean     NA    NA             NA       NA   2011.824        NA    NA  NA
 ## median   NA    NA             NA       NA   2014.000        NA    NA  NA

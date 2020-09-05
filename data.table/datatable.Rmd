@@ -3,9 +3,6 @@ title: "data.table"
 author: "R'm Balım Peteğim"
 date: "31 08 2020"
 output: 
-  pdf_document:
-    toc: yes
-    toc_depth: '3'
   html_document:   
     toc: yes
     toc_depth: 3
@@ -13,6 +10,9 @@ output:
       collapsed: no
     theme: united
     highlight: tango
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
 ---
 
 ```{r setup, include=FALSE}
@@ -60,9 +60,9 @@ Also we can use `fread()` for reading the data from internet or local. This func
 file <- if(file.exists("turkey_car_market.csv")) {
   "turkey_car_market.csv"
 } else {
-  url('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market.csv')
+  'https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market.csv'
 }
-car_market = fread(file)
+carmarket = fread(file)
 ```
 
 ## data.table object
@@ -79,11 +79,11 @@ datatable
 We can use all functions in base R with data.table object like:
 
 ```{r base R}
-nrow(car_market)
-ncol(car_market)
-summary(car_market)
-str(car_market)
-head(car_market)
+nrow(carmarket)
+ncol(carmarket)
+summary(carmarket)
+str(carmarket)
+head(carmarket)
 ```
 
 ## DT[i, j, by]
@@ -95,21 +95,21 @@ The most important consept of data.table package is the usage of data.table obje
 For example, if we want to get all records whose prices(`Fiyat` column) are less than 50000 Turkish Liras, we can use this code:
 
 ```{r filtering}
-car_market[Fiyat < 50000]
-#car_market[car_market$Fiyat < 50000,] in base R
+carmarket[Fiyat < 50000]
+#carmarket[carmarket$Fiyat < 50000,] in base R
 ```
 
 Also we can give more conditions with `&` or `|` operators.
 
 ```{r filtering2}
-car_market[Fiyat < 50000 & Marka == 'Acura']
-#car_market[car_market$Fiyat < 50000 & car_market$Marka == 'Acura',] in base R
+carmarket[Fiyat < 50000 & Marka == 'Acura']
+#carmarket[carmarket$Fiyat < 50000 & carmarket$Marka == 'Acura',] in base R
 ```
 
 If we want to get all rows except this condition we can use `!` sign.
 
 ```{r filtering3}
-car_market[!(Fiyat < 50000 & Marka == 'Acura')]
+carmarket[!(Fiyat < 50000 & Marka == 'Acura')]
 ```
 
 ### Selecting
@@ -118,65 +118,65 @@ For example, we need to get the head of the colours (`Renk` column). To do so, w
 
 ```{r selecting}
 cols = c("Renk")
-head(car_market[, Renk])
-head(car_market[, .(Renk)])
-head(car_market[, list(Renk)])
-head(car_market[, c("Renk"), with = FALSE])
-head(car_market[, 10, with = FALSE])
-head(car_market[, cols, with = FALSE])
-head(car_market[, ..cols])
+head(carmarket[, Renk])
+head(carmarket[, .(Renk)])
+head(carmarket[, list(Renk)])
+head(carmarket[, c("Renk"), with = FALSE])
+head(carmarket[, 10, with = FALSE])
+head(carmarket[, cols, with = FALSE])
+head(carmarket[, ..cols])
 ```
 
 We used the `with` argument. If we assign *FALSE* to that argument, it uses the character as the column name. `.()` and `list()` is used for selecting the columns.
 As you can see, the first one returns a vector, not a data.table object. With that usage, we can not use data.table operations like:
 
 ```{r vector_selecting}
-nrow(head(car_market[, Renk]))
+nrow(head(carmarket[, Renk]))
 ```
 
 We can select multiple columns with these usages:
 
 ```{r selecting2}
 cols = c("Renk", "Fiyat")
-head(car_market[, .(Renk, Fiyat)])
-head(car_market[, list(Renk, Fiyat)])
-head(car_market[, c("Renk", "Fiyat"), with = FALSE])
-head(car_market[, c(10, 15), with = FALSE])
-head(car_market[, cols, with = FALSE])
-head(car_market[, ..cols])
+head(carmarket[, .(Renk, Fiyat)])
+head(carmarket[, list(Renk, Fiyat)])
+head(carmarket[, c("Renk", "Fiyat"), with = FALSE])
+head(carmarket[, c(10, 15), with = FALSE])
+head(carmarket[, cols, with = FALSE])
+head(carmarket[, ..cols])
 ```
 
 We can select multiple rows with using slicing or excluding the columns with `!` sign. For example:
 
 ```{r selecting3}
-head(car_market[, Marka:Fiyat])
-head(car_market[, !c("Ä°lan Tarihi"), with = FALSE])
+head(carmarket[, Marka:Fiyat])
+head(carmarket[, !c("Ä°lan Tarihi"), with = FALSE])
 ```
 
 In selecting the columns we can use some operations like `%like%`. The usage of this operator is like this:
 
 ```{r selecting4}
-car_market[, names(car_market) %like% 'Arac', with = FALSE]
+carmarket[, names(carmarket) %like% 'Arac', with = FALSE]
 ```
 
 We can rename the columns with `setnames` function like:
 
 ```{r rename}
-setnames(car_market, c("Ä°lan Tarihi"), c("Date"))
-setnames(car_market, c("Model YÄ±l", "YakÄ±t Turu"), c("Model_Year", "Fuel_Type"))
-head(car_market)
+setnames(carmarket, c("Ä°lan Tarihi"), c("Date"))
+setnames(carmarket, c("Model YÄ±l", "YakÄ±t Turu"), c("Model_Year", "Fuel_Type"))
+head(carmarket)
 ```
 
 We can sort the data with `setorder` function like:
 
 ```{r order asc}
-head(setorder(car_market, Date))
+head(setorder(carmarket, Date))
 ```
 
 It orders the data ascending by default. We can use `-` sign for descending and can order the data with multiple columns like:
 
 ```{r order desc}
-head(setorder(car_market, Date, -Marka))
+head(setorder(carmarket, Date, -Marka))
 ```
 
 ### Grouping
@@ -184,19 +184,19 @@ head(setorder(car_market, Date, -Marka))
 We can group the data with using the `by` parameter. We can get average prices for each brand like this:
 
 ```{r grouping}
-car_market[, .(mean_price= mean(Fiyat)), by = Marka]
+carmarket[, .(mean_price= mean(Fiyat)), by = Marka]
 ```
 
 We can summarize the data for more than one column with respect to more than one column.
 
 ```{r grouping2}
-car_market[, .(mean = mean(Fiyat), max = max(Fiyat)), by = c("Marka", "Arac Tip")]
+carmarket[, .(mean = mean(Fiyat), max = max(Fiyat)), by = c("Marka", "Arac Tip")]
 ```
 
 We can get total number of rows with `.N` like:
 
 ```{r grouping3}
-car_market[, .N, by = Marka]
+carmarket[, .N, by = Marka]
 ```
 
 ## Index Operators
@@ -204,22 +204,22 @@ car_market[, .N, by = Marka]
 If we use the index of the data, we can perform better processes with respect to time. To set a column to the index we can use `setkey()` function like:
 
 ```{r setkey}
-setkey(car_market, Date)
-key(car_market)
-head(car_market)
+setkey(carmarket, Date)
+key(carmarket)
+head(carmarket)
 ```
 
 As you can see, the data is sorted after by key setting it. Alse we can give multiple index like:
 
 ```{r setkey2}
-setkey(car_market, Date, Marka)
-key(car_market)
+setkey(carmarket, Date, Marka)
+key(carmarket)
 ```
 
 We can group the data by the key(s) with `bykey` argument like:
 
 ```{r group bykey}
-head(car_market[, .(mean_price= mean(Fiyat)), by = Date])
+head(carmarket[, .(mean_price= mean(Fiyat)), by = Date])
 ```
 
 ## Creating Columns
@@ -229,19 +229,19 @@ head(car_market[, .(mean_price= mean(Fiyat)), by = Date])
 We can create columns in data.table package. To do so we need to use `:=` operator like:
 
 ```{r create}
-head(car_market[, fpk := Fiyat / Km])
+head(carmarket[, fpk := Fiyat / Km])
 ```
 
 We can also create multiple columns.
 
 ```{r create2}
-head(car_market[, c("kpf", "full_vehicle_type") := list(Km / Fiyat, paste(`Arac Tip Grubu`, `Arac Tip`))])
+head(carmarket[, c("kpf", "full_vehicle_type") := list(Km / Fiyat, paste(`Arac Tip Grubu`, `Arac Tip`))])
 ```
 
 We can write sub queries like in SQL. We can show it from the code above:
 
 ```{r sub query}
-car_market[, c("kpf", "full_vehicle_type") := list(Km / Fiyat, paste(`Arac Tip Grubu`, `Arac Tip`))][, .(kpf, full_vehicle_type)]
+carmarket[, c("kpf", "full_vehicle_type") := list(Km / Fiyat, paste(`Arac Tip Grubu`, `Arac Tip`))][, .(kpf, full_vehicle_type)]
 ```
 
 ### Aggregation 
@@ -249,7 +249,7 @@ car_market[, c("kpf", "full_vehicle_type") := list(Km / Fiyat, paste(`Arac Tip G
 For the creation of new columns, we can use aggregate functions like min, max etc.
 
 ```{r aggregate}
-car_market[, .(mean = mean(Fiyat, na.rm = TRUE),
+carmarket[, .(mean = mean(Fiyat, na.rm = TRUE),
 median = median(Fiyat, na.rm = TRUE),
 min = min(Fiyat, na.rm = TRUE),
 max = max(Fiyat, na.rm = TRUE))]
@@ -258,17 +258,17 @@ max = max(Fiyat, na.rm = TRUE))]
 We can summarize multiple columns like:
 
 ```{r aggregate2}
-car_market[, .(mean(Fiyat), mean(Km))]
+carmarket[, .(mean(Fiyat), mean(Km))]
 ```
 
 If we need to apply aggregation for more columns, we can use `.SD` and `.SDcols`. .SD means 'Subset of Data'. If we don't use .SDcols parameter, it includes all columns. If we use .SDcols, it applies that process for these columns.
 
 ```{r aggregate3}
-car_market[, lapply(.SD, mean), .SDcols = c("Fiyat", "Km")]
+carmarket[, lapply(.SD, mean), .SDcols = c("Fiyat", "Km")]
 ```
 
 Also, we can have multiple summarize function in the same line like:
 
 ```{r aggregate4}
-car_market[, sapply(.SD, function(x) c(mean=mean(x), median=median(x)))]
+carmarket[, sapply(.SD, function(x) c(mean=mean(x), median=median(x)))]
 ```
