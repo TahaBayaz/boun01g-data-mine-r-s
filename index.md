@@ -12,7 +12,7 @@ In this assignment, the main purpose is to make an exploratory data analysis by 
 
 - Project Data: [Kaggle](https://www.kaggle.com/dgomonov/new-york-city-airbnb-open-data)
 - Exploratory Data Analysis (EDA): [html](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb.html)/[pdf](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb.pdf)
-- Shiny App: [html](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb_Shiny.html)
+- Shiny App: [html](https://pjournal.github.io/boun01g-data-mine-r-s/Assignment/Airbnb_Shiny.html) <br>
 Note that like exploratory report, we prepare rmd file for Shiny app to present related code. You can reach Shiny app by using rmd file given above.
 
 ## PROJECT
