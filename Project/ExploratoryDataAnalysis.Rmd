@@ -1,5 +1,5 @@
 ---
-title: "Explanatory Data Analysis"
+title: "Exploratory Data Analysis"
 author: "Data Mine’R’s"
 date: "31/08/2020"
 output:
@@ -102,7 +102,7 @@ library(scales)
 library(kableExtra)
 ```
 
-## 2. Explanatory  Data Analysis - EDA
+## 2. Exploratory  Data Analysis - EDA
 
 Before making any further analysis, we need to import the data that we pre-processed the data.The pre-processing report file link is given above. 
 
@@ -756,7 +756,7 @@ According to the result, the most popular color in car is *White*. The second on
 
 ## 3. Conclusion
 
-In this *Explanatory Data Analysis* we investigate the 2020 online car market data in Turkey. The main purpose of this study is to find the relationship between features and Price of the cars. Each car has different properties, for example body type, gear type, color, etc. These properties affect both the Price and the demand of car market in Turkey. For this reason, before conducting models for forecasting car price, first, variables and their sub-groups are analyzed. Then, graphical visualizations are introduced to present more understandable information about dataset. In the next section, some models to forecast price of cars will be addressed. 
+In this *Exploratory Data Analysis* we investigate the 2020 online car market data in Turkey. The main purpose of this study is to find the relationship between features and Price of the cars. Each car has different properties, for example body type, gear type, color, etc. These properties affect both the Price and the demand of car market in Turkey. For this reason, before conducting models for forecasting car price, first, variables and their sub-groups are analyzed. Then, graphical visualizations are introduced to present more understandable information about dataset. In the next section, some models to forecast price of cars will be addressed. 
 
 ## References
 

@@ -47,7 +47,7 @@ body {
 
 ## 1. Data
 
-The data are about the online car advertisements in Turkey market. There are 15 columns in the dataset. These are
+Our data is gathered from the [Kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020). Also you can find the csv in our [Github Repository](https://github.com/pjournal/boun01g-data-mine-r-s/tree/gh-pages/Project). The data are about the online car advertisements in Turkey market. There are 15 columns in the dataset. These are
 
 1. `Date` (the date that the advertisement is published)
 2. `Brand` (the brand of the car)
@@ -109,7 +109,7 @@ carmarket = fread("turkey_car_market.csv")
 carmarket = fread('https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market.csv')
 ```
 
-Our data set which we obtain from the [kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020) is created by using Turkish language. For this reason, before the explanatory analysis, we transform our name of the columns to English. For this, we use the following code. 
+Our data set which we obtain from the [kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020) is created by using Turkish language. For this reason, before the exploratory analysis, we transform our name of the columns to English. For this, we use the following code. 
 
 ```{r colnames}
 #changing column names by using English meaning
@@ -558,14 +558,15 @@ There are `r carmarket[Price > upper | Price < lower, .N]` outliers in the data 
 
 We can check for the combination `Vehicle_Type` and `Vehicle_Type_Group` columns whether both of them are matching with each other. But, it will take more time than the value it would add.
 
-Now, our data is ready for making further analysis. So, we need to export the data for explanatory data analysis (EDA).
+Now, our data is ready for making further analysis. So, we need to export the data for exploratory data analysis (EDA).
 
 ```{r data export, eval = FALSE}
 saveRDS(carmarket, file = "turkey_car_market_EDA")
 ```
 
-For the analysis, you can follow this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExplanatoryDataAnalysis.html)
+For the analysis, you can follow this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExploratoryDataAnalysis.html)
 
 ## References
 
 1. [Mode Function](https://acadgild.com/blog/55690-2#:~:text=In%20R%2C%20there%20are%20no,created%20the%20function(x))
+2. [Kaggle](https://www.kaggle.com/alpertemel/turkey-car-market-2020)

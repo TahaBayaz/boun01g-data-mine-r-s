@@ -1704,7 +1704,7 @@ body {
 </div>
 <div id="data" class="section level2">
 <h2>1. Data</h2>
-<p>The data are about the online car advertisements in Turkey market. There are 15 columns in the dataset. These are</p>
+<p>Our data is gathered from the <a href="https://www.kaggle.com/alpertemel/turkey-car-market-2020">Kaggle</a>. Also you can find the csv in our <a href="https://github.com/pjournal/boun01g-data-mine-r-s/tree/gh-pages/Project">Github Repository</a>. The data are about the online car advertisements in Turkey market. There are 15 columns in the dataset. These are</p>
 <ol style="list-style-type: decimal">
 <li><code>Date</code> (the date that the advertisement is published)</li>
 <li><code>Brand</code> (the brand of the car)</li>
@@ -1754,7 +1754,7 @@ body {
 <p>At first, we need to upload the dataset. To do so, you can run the following command:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">#data uploading</span></span>
 <span id="cb2-2"><a href="#cb2-2"></a>carmarket =<span class="st"> </span><span class="kw">fread</span>(<span class="st">&#39;https://raw.githubusercontent.com/pjournal/boun01g-data-mine-r-s/gh-pages/data.table/turkey_car_market.csv&#39;</span>)</span></code></pre></div>
-<p>Our data set which we obtain from the <a href="https://www.kaggle.com/alpertemel/turkey-car-market-2020">kaggle</a> is created by using Turkish language. For this reason, before the explanatory analysis, we transform our name of the columns to English. For this, we use the following code.</p>
+<p>Our data set which we obtain from the <a href="https://www.kaggle.com/alpertemel/turkey-car-market-2020">kaggle</a> is created by using Turkish language. For this reason, before the exploratory analysis, we transform our name of the columns to English. For this, we use the following code.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">#changing column names by using English meaning</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a>col_names =<span class="st"> </span><span class="kw">c</span>(<span class="st">&#39;Date&#39;</span>, <span class="st">&#39;Brand&#39;</span>, <span class="st">&#39;Vehicle_Type_Group&#39;</span>, <span class="st">&#39;Vehicle_Type&#39;</span>, <span class="st">&#39;Model_Year&#39;</span>, <span class="st">&#39;Fuel_Type&#39;</span>, <span class="st">&#39;Gear&#39;</span>, <span class="st">&#39;CCM&#39;</span>, <span class="st">&#39;Horse_Power&#39;</span>, <span class="st">&#39;Color&#39;</span>, <span class="st">&#39;Body_Type&#39;</span>, <span class="st">&#39;Seller&#39;</span>, <span class="st">&#39;Seller_Status&#39;</span>, <span class="st">&#39;Kilometers&#39;</span>, <span class="st">&#39;Price&#39;</span>)</span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="kw">names</span>(carmarket) =<span class="st"> </span>col_names</span></code></pre></div>
@@ -2329,15 +2329,16 @@ body {
 ## 742: Black            Sedan Galery      2nd Hand        400  285000</code></pre>
 <p>There are 742 outliers in the data with respect to <code>Price</code> values. This is normal, because there are many low-segment or mid-segment cars in the advertisements and these outliers are some of the high-segment car companies. There is nothing wrong with this data.</p>
 <p>We can check for the combination <code>Vehicle_Type</code> and <code>Vehicle_Type_Group</code> columns whether both of them are matching with each other. But, it will take more time than the value it would add.</p>
-<p>Now, our data is ready for making further analysis. So, we need to export the data for explanatory data analysis (EDA).</p>
+<p>Now, our data is ready for making further analysis. So, we need to export the data for exploratory data analysis (EDA).</p>
 <div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1"></a><span class="kw">saveRDS</span>(carmarket, <span class="dt">file =</span> <span class="st">&quot;turkey_car_market_EDA&quot;</span>)</span></code></pre></div>
-<p>For the analysis, you can follow this <a href="https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExplanatoryDataAnalysis.html">link</a></p>
+<p>For the analysis, you can follow this <a href="https://pjournal.github.io/boun01g-data-mine-r-s/Project/ExploratoryDataAnalysis.html">link</a></p>
 </div>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
 <ol style="list-style-type: decimal">
 <li><a href="https://acadgild.com/blog/55690-2#:~:text=In%20R%2C%20there%20are%20no,created%20the%20function(x)">Mode Function</a></li>
+<li><a href="https://www.kaggle.com/alpertemel/turkey-car-market-2020">Kaggle</a></li>
 </ol>
 </div>
 
