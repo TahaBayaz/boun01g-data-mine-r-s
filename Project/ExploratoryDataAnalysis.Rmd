@@ -180,8 +180,7 @@ When we search for that increase in 17 - 18.04.2020 dates, there was an informat
 We can make a plot of sales respect to `Brand`.
 
 ```{r date_brand vs count}
-carmarket %>%
-  filter(Month <= 7 & Month >2) %>%
+carmarket  %>%
   group_by(Date, Brand) %>%
   summarise(count = n()) %>%
   ggplot(., aes(x = Date, y = count, color = Brand)) +
