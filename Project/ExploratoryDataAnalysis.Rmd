@@ -481,7 +481,11 @@ carmarket %>%
   ggplot(., aes(x = Gear, y = Price, color = Gear)) +
   geom_jitter() +
   theme_minimal() +
-  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+    labs(title = " Price According to the Gear Type",
+         x = "Gear Type",
+         y = "Price",
+         color = "Gear Type")
 ```
 
 The half of the cars in this data set belongs to the Manual Gear Type. However, price distribution in manual gear type concentrates in a narrow area. Semi automatic and automatic, on the other hand, have a wider area with possible outliers.

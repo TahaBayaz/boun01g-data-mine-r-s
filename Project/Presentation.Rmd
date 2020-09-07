@@ -1,0 +1,369 @@
+---
+title: "2020 Online Car Market"
+subtitle: "Exploratory Data Analysis and Price Forecast"
+author: "Data Mine’R’s"
+institute: "Boğaziçi University"
+date: "2020/09/07"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE, message=FALSE, warning=FALSE)
+```
+
+```{r setup2, include = FALSE}
+knitr::opts_chunk$set(
+  fig.showtext = TRUE,
+  message=FALSE,
+  warning=FALSE,
+  error = FALSE,
+  fig.align = "center",
+  out.width = "90%",
+  echo = FALSE
+)
+```
+
+```{r xaringan-themer, include=FALSE}
+pti <- c("data.table", "tidyverse", "knitr", "tinytex", "scales", "kableExtra", "xaringanthemer", "showtext")
+pti <- pti[!(pti %in% installed.packages())]
+if(length(pti)>0){
+    install.packages(pti)
+}
+
+library(xaringanthemer)
+library(tidyverse)
+library(knitr)
+library(tinytex)
+library(data.table)
+library(scales)
+library(kableExtra)
+library(showtext)
+style_mono_light(base_color = "#23395b")
+```
+class:left, bottom
+
+background-image: url(https://lh3.googleusercontent.com/proxy/aL3mmQIusLaBjxnrI_ol37ITt5M4hRW5S9oSCTV89zC-tfU0mcj2cVLca9dqGS9Wus_qArdfghUTFMv1fHknsTH43iwEny-s8_LSsPjVT8PxQaT2ZBPf--cPbQo6izkmzkeK)
+background-size: cover
+
+.pull-left[
+### GROUP MEMBERS
+
+**Can AYTÖRE**<br>
+**Ebru GEÇİCİ**<br>
+**Nazlı GÜL**<br>
+**Taha BAYAZ**<br>
+**Talha ÜNLÜ**<br>
+**Mustafa KESER**<br>
+]
+.pull-right[
+
+### AGENDA
+
+**1. Data Information**<br>
+**2. Exploratory Data Analysis**<br>
+**3. Shiny App**<br>
+**4. Prediction Model**<br>
+**5. Conclusion**<br>
+]
+---
+
+## 1. Data Information
+```{r data}
+carmarket = readRDS(gzcon(url("https://github.com/pjournal/boun01g-data-mine-r-s/blob/gh-pages/Project/turkey_car_market_EDA?raw=true")))
+```
+
+- [Kaggle dataset(Online Car Market 2020)](https://www.kaggle.com/alpertemel/turkey-car-market-2020)
+ - `r nrow(carmarket)` row and `r ncol(carmarket)` feature
+- Data check
+ - NA and Duplicated Values
+ - "Don't Know" Values
+ - Variable Translation
+```{r colnames}
+colnames(carmarket)
+```
+ - Accuracy of variables (Nonnegativity etc.)
+ - Outliers
+- CSV to RDS
+- Packages: tidyverse, lubridate, data.table, scale, shiny, etc.
+---
+
+## 2. Exploratory Data Analysis-EDA
+
+**Objective:** To identify which variables affect the price mostly and come up with a conclusion for the relationship between variables.
+.pull-left[
+- Time series analysis
+- The most and least popular car brands
+- Price vs Car brands
+- Price vs Body type
+- Price vs Fuel type
+- Price vs Gear
+- Price vs Gear grouped by fuel type
+- Price vs CCM
+- Price vs HP grouped by Seller status
+- Seller status vs Seller
+- Gear vs Car brands
+- The most popular car colors
+]
+.pull-right[
+
+```{r}
+carmarket %>%
+  group_by(Brand) %>%
+  summarise(Average_Price = mean(Price)) %>%
+  arrange(desc(Average_Price))%>%
+  
+  ggplot(., aes(y=reorder(Brand,Average_Price), x = Average_Price, fill = Brand)) +
+    geom_col() +
+    theme_minimal() +
+    labs(title = "Order of the Car Brand According to \nTheir Average Price",
+         subtitle = "Online Car Marker 2020",
+         x = "Average Price",
+         y = "Brands")
+```
+
+]
+---
+
+## 2. Exploratory Data Analysis-EDA
+.pull-left[
+```{r, out.width="90%"}
+carmarket %>%
+  group_by(Fuel_Type) %>%
+
+  ggplot(.,aes(x=Fuel_Type, y = Price, fill= Fuel_Type)) +
+    geom_boxplot() +
+    theme_minimal() +
+    scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+    labs(title = "Prices According to the Fuel Type",
+         x = "Fuel Type",
+         y = "Price",
+         fill = "Fuel Type")
+
+```
+]
+.pull-right[
+
+```{r, out.width="90%"}
+carmarket %>%
+  ggplot(., aes(x = Gear, y = Price, color = Gear)) +
+  geom_jitter() +
+  theme_minimal() +
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+  labs(title = "Price According to the Gear Type",
+       x = "Gear Type",
+       y = "Price",
+       color = "Gear Type")
+```
+
+]
+<font size="2"> 
+
+.pull-left[
+
+- There are many outliers in **Diesel** and **Electricity** Fuel Type.<br>
+- **Gasoline** is the least expensive fuel type, **Hybrid** is the most expensive one.<br>
+- The median **Hybrid** is very close to the first quantile.<br>
+- Since the price interval of the **Hybrid** is wider, there is no outlier data.<br>
+
+]
+
+.pull-right[
+
+- Price distribution in **Manual** gear type concentrates in a narrow area. <br>
+- **Semi automatic** and **Automatic** have a wider area with outliers.<br>
+
+]
+</font>
+
+---
+## 2. Exploratory Data Analysis-EDA
+```{r, fig.height= 3}
+carmarket %>%
+  group_by(Fuel_Type, Gear) %>%
+  summarise(Average_Price = mean(Price)) %>%
+  
+  ggplot(.,aes(x=reorder(Fuel_Type, -Average_Price), y = Average_Price, fill= Fuel_Type)) +
+    geom_col() +
+    facet_wrap(~Gear) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90), legend.position = "none") +
+    scale_y_continuous(labels = function(x) format(x, scientific = FALSE)) +
+    labs(title = "Average Price According to the Fuel Type for Different Gear Type",
+         x = "Fuel Type",
+         y = "Average Price",
+         Fill = "Fuel Type")
+
+```
+
+- The most expensive cars are located in **Semi-Automatic** and **Automatic** Gear Type with **Hybrid** Fuel Type.<br>
+- While the **Hybrid** Fuel Type is more recent technology, there are no cars in **Manual** Gear Type.<br>
+- The least expensive cars are located in **Gasoline** Fuel Type in all Gear Types.<br>
+
+---
+## 2. Exploratory Data Analysis-EDA
+```{r Seller vs Seller Status, fig.height=3}
+carmarket %>%
+  group_by(Seller,Seller_Status) %>%
+  summarise(count=n()) %>%
+  mutate(percentage = 100*count/sum(count)) %>%
+  ggplot(., aes(x = '', y = count, fill = Seller_Status)) +
+  geom_bar(width = 1, stat = "identity", position = "fill") +
+  coord_polar("y") +
+  theme_void() +
+  theme(plot.title = element_text(vjust = 0.5)) +
+  facet_wrap(~Seller) +
+  labs(title = "Seller Status Distribution of Sellers",
+       fill = "Seller Status")
+```
+
+```{r Seller vs Status Table}
+carmarket %>%
+  group_by(Seller,Seller_Status) %>%
+  summarise(count=n()) %>%
+  mutate(percentage = 100*round(count/sum(count), digits = 3))%>%
+  select(Seller, Seller_Status, count, percentage) %>%
+  pivot_wider(id_cols = Seller, names_from = Seller_Status, values_from = percentage, values_fill = 0)%>%
+  kable(col.names = c("Seller", "0 km", "2nd Hand", "Classic", "Damaged")) %>%
+  kable_styling(font_size = 15)
+```
+<center>
+
+<font size="2"> 
+.pull-bottom[
+**Gallery** and **Owner** mostly sell **2nd Hand** cars, whereas **Authority** sell **0 km** cars.<br>
+There are no seller status, which are **Classic** and **Damaged** in the **Authority** Seller.<br>
+]
+</font>
+
+</center>
+---
+## 2. Exploratory Data Analysis-EDA
+```{r Gear vs Brand, fig.height=4}
+carmarket %>%
+  group_by(Brand, Gear) %>%
+  summarize(gear_type_count = n())  %>%
+  mutate(gear_type_percentage = gear_type_count / sum(gear_type_count)) %>%
+  ggplot(., aes(x = Brand, y = gear_type_count, fill = Gear)) +
+  geom_bar(position = "fill",stat = "identity") +
+  theme_minimal() +
+  scale_y_continuous(labels = scales::percent_format()) +
+  theme(axis.text.x = element_text(angle = 90), legend.position = "right") +
+  labs(title = "Gear Type Comparison of Car Brands",
+       x = "Brand",
+       y = "Percentage of Gear Type", 
+       fill = "Gear Type")
+```
+<font size="2"> 
+.pull-bottom[
+- The all cars of the **Chyrsler** and **Volkswagen** have only automatic gear type, in the 2020 online car market.<br>
+- **Geely**, **Lada**, and **Tofas** have only manual gear type.<br>
+- The other car brands have various gear type in their cars.<br>
+]
+</font>
+---
+## 2. Exploratory Data Analysis-EDA
+.pull-left[
+```{r}
+carmarket %>%
+  count(Brand, sort=TRUE) %>%
+  mutate(percentage = 100 * n / sum(n)) %>%
+  head(15) %>%
+  ggplot(.,aes(x=percentage, y=reorder(Brand,percentage), fill = percentage)) +
+  geom_col() +
+  scale_fill_gradient("percentage", low="seagreen2", high="seagreen4") +
+  geom_text(aes(label = paste(format(percentage,digits=3), "%")), size=4, position = position_stack(vjust = 0.5)) +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(vjust = 0.5)) +
+  labs(x = "Percentages",
+       y = "Car Brands",
+       title = "Top 15 Popular Brands")
+```
+]
+.pull-right[
+```{r}
+carmarket %>%
+  count(Brand, sort=TRUE) %>%
+  mutate(percentage = 100 * n / sum(n)) %>%
+  tail(15) %>%
+  ggplot(.,aes(x=percentage, y=reorder(Brand,percentage), fill=percentage)) +
+  geom_col() +
+  scale_fill_gradient("percentage", low="peachpuff2", high="peachpuff4") +
+  geom_text(aes(label = paste(format(percentage,digits=1), "%")), size=4, position = position_stack(vjust = 0.5)) +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(vjust = 0.5)) +
+  labs(x = "Percentages",
+       y = "Car Brands",
+       title = "Less Popular Brands")
+```
+]
+---
+## 2. Exploratory Data Analysis-EDA
+```{r, out.width="65%"}
+quant = quantile(carmarket$Price, seq(0, 1, 0.2))
+
+carmarket_price_group <- carmarket %>%
+  mutate(price_group = case_when(
+    Price < quant[2] ~ "Very Low",
+    Price < quant[3] ~ "Low",
+    Price < quant[4] ~ "Medium",
+    Price < quant[5] ~ "High",
+    TRUE ~ "Very High"
+  )) %>%
+  mutate(price_group = factor(price_group, levels = c("Very Low", "Low", "Medium", "High", "Very High")))
+
+carmarket_price_group %>%
+  group_by(Brand, price_group) %>%
+  summarize(counter = n()) %>%
+  mutate(percentage = 100 * counter / sum(counter)) %>%
+  ggplot(., aes(x = '', y = counter, fill = price_group)) + 
+  geom_bar(width = 1, stat = "identity", position = "fill") +
+  coord_polar("y") +
+  theme_void() +
+  theme(plot.title = element_text(vjust = 0.5)) +
+  facet_wrap(~Brand) +
+  labs(title = "Price Group Analyses of Car Brand",
+       fill = "Price Group")
+```
+---
+## 3. Shiny App
+![](https://pjournal.github.io/boun01g-data-mine-r-s/Project/images/shiny_app.png)
+---
+## 4. Prediction Model
+.pull-left[
+- Models
+ - Linear Regression
+ - CART 
+ - Random Forest (Best Model)
+- Best Model Features: `r c("Gear", "Horse_Power", "Color", "Kilometers", "Model_Year", "Fuel_Type", "Body_Type")`
+- Best MSE: 1581517991
+- Best R-Squared: 0.831
+]
+.pull-rigth[
+![](https://pjournal.github.io/boun01g-data-mine-r-s/Project/images/model.jpeg)
+]
+
+---
+## Conclusion
+
+1. In 2020, April has the highest online advertisement number.
+2. Renault is the Turkey online market leader in 2020.
+3. The most online advertisements are secondhand cars from the gallery.
+4. Hybrid fuel type is the most expensive cars in online advertisement number.
+5. Manual gear type has the highest online advertisement number.
+6. Diesel fuel type has the 66% of online advertisements.
+7. The higher price of a car, the lower number of advertisements they have.
+8. Basic colors are more preferable in online advertisements.
+---
+class: center, middle
+<font size="10"> 
+.pull-bottom[
+**THANK YOU!!**
+]
+</font>
