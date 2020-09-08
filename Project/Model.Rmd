@@ -1,0 +1,262 @@
+---
+author: "Data Mine'R's"
+date: "06 09 2020"
+title: "Model for Turkey Car Market"
+output: 
+  html_document:
+    code_folding: hide    
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: no
+    theme: united
+    highlight: tango
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, error = FALSE)
+```
+
+<style>
+#TOC {
+ color: 
+ font-family: Calibri;
+ background-color:
+ border-color: darkred;
+}
+#header {
+ color: darkred;
+ font-family: Calibri;
+ background-color:
+}
+body {
+ font-family: Calibri;
+ }
+ 
+</style>
+
+At first, we need to load the required packages.
+
+```{r packages, message=FALSE, warning=FALSE}
+pti <- c("data.table", "tidyverse", "lubridate", "knitr", "tinytex", "rpart", "randomForest", "rpart.plot", "caret")
+pti <- pti[!(pti %in% installed.packages())]
+if(length(pti)>0){
+    install.packages(pti)
+}
+
+library(tidyverse)
+library(lubridate)
+library(knitr)
+library(tinytex)
+library(data.table)
+library(randomForest)
+library(rpart)
+library(rpart.plot)
+```
+
+## Reading the Data
+
+We download the preprocessed data. You can see the preprocessing steps from this [link](https://pjournal.github.io/boun01g-data-mine-r-s/Project/Preprocessing.html).
+```{r data from url}
+#data uploading
+carmarket = readRDS(gzcon(url("https://github.com/pjournal/boun01g-data-mine-r-s/blob/gh-pages/Project/turkey_car_market_EDA?raw=true")))
+```
+
+This is the structure of the data.
+
+```{r stracture}
+str(carmarket)
+```
+
+## Data Preparation
+
+While setting up the model, we encountered an error when the level number of factor type variables exceeded 32. So we overcame this problem by adding some variables to dummy variables.
+```{r formatting}
+
+library(caret)
+dmy <- dummyVars(" ~ .", data = carmarket[, .(Brand, Fuel_Type, Gear, Seller_Status)])
+carmarket_encoded <- data.frame(predict(dmy, newdata = carmarket[, .(Brand, Fuel_Type, Gear, Seller_Status)]))
+carmarket_encoded$Kilometers = carmarket$Kilometers
+carmarket_encoded$Model_Year = carmarket$Model_Year
+carmarket_encoded$CCM = carmarket$CCM
+carmarket_encoded$Horse_Power = carmarket$Horse_Power
+carmarket_encoded$Price = carmarket$Price
+carmarket_encoded$Seller = carmarket$Seller
+
+
+```
+
+
+We divided our data into train and test. We will set up our model using the train part, then we will try to estimate the car prices using the model we have set up in test data. Consequently, we will push our model by looking at various metrics.
+
+```{r splitting the data}
+set.seed(492)
+ind<-sample(2,nrow(carmarket_encoded),replace = TRUE,prob = c(0.7,0.3))
+carmarket.test<-carmarket[ind==2,]
+carmarket.train<-carmarket[ind==1, ] 
+
+```
+
+## Determining the Formula
+
+Manually, we evaluated our formulas, then we specified the formula to use in the algorithm below.
+```{r formula}
+fmla<-Price~Gear+Horse_Power+Color+Kilometers+Model_Year+Fuel_Type+Body_Type #Seller Status ekleyince düştü
+fmla1<-Price~Gear+Color+Kilometers+Model_Year+Fuel_Type+Body_Type+Seller_Status
+```
+
+
+# Using the Random Forest Algorithm
+
+Random Forest algorithm builds the multiple decision trees which are known as forest and glue them together to urge a more accurate and stable prediction.So we used randomForest()
+
+```{r randomForest best ntree}
+
+  carmarket.train.rf<-randomForest(fmla,data=carmarket.train,ntree=116)
+  carmarket.test$rfpredict<-predict(carmarket.train.rf,carmarket.test)
+  print(error<-sqrt(mean((carmarket.test$rfpredict-carmarket.test$Price)^2)))
+  
+ 
+```
+
+The r-square value is a metric that shows how well our prediction and actual observations fit each other. Our r-squared value is 0.8313471. This value shows that our model explains real data well.
+```{r r_squared}
+
+R_squared <- 1 - (sum((carmarket.test$rfpredict-carmarket.test$Price)^2)/sum((carmarket.test$Price-mean(carmarket.test$Price))^2))
+R_squared # 0.8313471
+
+
+```
+
+Root Mean Square Error (RMSE) is the standard deviation of the residuals (prediction errors). Residuals are a measure of how far from the regression line data points are; RMSE is a measure of how spread out these residuals are. In other words, it tells you how concentrated the data is around the line of best fit.Our rmse value is 72404.77, which clearly shows that the prediction we made is acceptable.
+```{r rmse,residuals}
+residuals<-carmarket.test$Price-carmarket.test$rfpredict
+relative_error <- residuals/carmarket.test$Price
+
+print(rmse<- sqrt(mean(residuals^2)))  #72404.77
+print(rmse.rel<-sqrt(mean(relative_error^2))) # 0.4448891
+
+#MSE = (1/n) * Σ(actual – prediction)2
+
+mse.rf<-(1/nrow(carmarket))*sum(residuals^2)
+mse.rf # 1581517991
+```
+
+We used varImpPlot() function to see how effective it is in which variable model.
+```{r importance}
+varImpPlot(carmarket.train.rf)
+```
+
+
+We visualized the regression we set up
+```{r}
+ggplot(carmarket.test,aes(rfpredict,Price))+
+  geom_point()+
+  geom_abline(color="blue")+
+  coord_cartesian(xlim = c(0, 350000), ylim = c(0, 350000))+
+  ggtitle("Prediction Price vs Actual Price")
+ 
+
+```
+
+Below is a basic table of the prediction and actual values we have made.
+```{r table2}
+results<- carmarket.test[,17:18]
+head(results,n=10)
+```
+
+
+
+## Using the Rpart 
+
+Although the above results are satisfactory, we wanted to check our model above using another algorithm. That's why we used the rpart package and reached the following results. 
+
+```{r data splitting for rpart}
+set.seed(492)
+ind<-sample(2,nrow(carmarket_encoded),replace = TRUE,prob = c(0.7,0.3))
+
+rptrain<-carmarket[ind==1, ] 
+rptest<-carmarket[ind==2, ]
+
+fmla1<-Price~Gear+Horse_Power+Color+Kilometers+Model_Year+Fuel_Type+Body_Type+Seller_Status
+```
+
+We established our model using the rpart library.
+```{r rpart}
+rp = rpart(fmla1, data=rptrain, control=rpart.control(minsplit=3,minbucket=1,cp=0.001))
+prp(rp)
+rptest$prediction<-predict(rp,newdata=rptest)
+```
+
+We calculated the r square value of the model we built. We found the value as 0.7391716. We have observed that our model does not give a good result as a random forest.
+```{r rpart r_squared}
+Rpart_r.squared <- 1 - (sum((rptest$prediction-rptest$Price)^2)/sum((rptest$Price-mean(rptest$Price))^2))
+Rpart_r.squared # 0.7391716
+
+#MSE = (1/n) * Σ(actual – prediction)2
+
+mse.rpart<-(1/nrow(rptest))*sum((rptest$Price-rptest$prediction)^2)
+mse.rpart #8107658376
+
+```
+
+We visualized the our rpart model
+```{r rpart ggplot }
+ggplot(rptest,aes(prediction,Price))+
+  geom_point()+
+  geom_abline(color="blue")+
+  coord_cartesian(xlim = c(0, 350000), ylim = c(0, 350000))+
+  ggtitle("Prediction Price vs Actual Price")
+
+```
+
+The table which display actual price versus prediction is below
+```{r table}
+
+PricevsPrediction_table<-rptest[,17:18]
+PricevsPrediction_table
+
+```
+
+
+## Linear Modelling
+
+As a third method, we wanted to establish a Linear model. For this, we quickly made the necessary data preparations and set up our model.
+```{r linear modelling}
+model <- lm(Price ~ Brand + as.factor(Model_Year) + Fuel_Type + Gear + CCM + Horse_Power + Color + Body_Type + Seller + Seller_Status, data = carmarket)
+anova(model)
+```
+
+
+```{r data preparation}
+carmarket <- carmarket[carmarket$Model_Year != 1961 & carmarket$Model_Year != 1977 & carmarket$Model_Year != 1978,]
+carmarket <- carmarket[carmarket$CCM != "Don't Know" & carmarket$CCM != "4501-5000 cc" & carmarket$CCM != "5501-6000 cc" & carmarket$CCM != "6001 cc and above",]
+carmarket <- carmarket[carmarket$Color != "Amaranth" & carmarket$Color != "Magenta" & carmarket$Color != "Pink",]
+pred_length <- nrow(carmarket)
+fit_lm_error <- c()
+fit_lm_sq_error <- c()
+```
+
+We use for loop in order to find the best linear model.
+
+```{r fit_linear model}
+for(i in 1:pred_length){
+  fit_lm <- lm(Price ~ Brand + as.factor(Model_Year) + Fuel_Type + Gear + CCM + Color + Body_Type + Seller + Seller_Status + Kilometers, data = carmarket[-i,])
+  fit_lm_pred <- (predict(fit_lm, carmarket[i,]))^2
+  fit_lm_error[i] <- carmarket$Price[i] - fit_lm_pred
+  fit_lm_sq_error[i] = (carmarket$Price[i] - fit_lm_pred)^2
+}
+```
+
+As can be seen from the histogram, the error of our model is very low.
+```{r histogram & rmse}
+hist(fit_lm_error, breaks = 20)
+rmse_fit_lm <- sqrt(mean(fit_lm_sq_error))
+rmse_fit_lm #204853658239
+```
+
+
