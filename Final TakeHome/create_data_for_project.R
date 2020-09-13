@@ -2,7 +2,7 @@ library(tidyverse)
 
 all_data<-readxl::read_excel("2014.09.xls",skip=7,col_names=FALSE)
 colnames(all_data) <- c("brand_name","auto_dom","auto_imp","auto_total","comm_dom","comm_imp","comm_total","total_dom","total_imp","total_total")
-all_data <- all_data %>% mutate_if(is.numeric,funs(ifelse(is.na(.),0,.))) %>% mutate(year=2014,month=9)
+all_data <- all_data %>% mutate_if(is.numeric,funs(ifelse(is.na(.),0,.))) %>% mutate(year=2014,month=09)
 
 row_count = nrow(all_data)
 
@@ -14,7 +14,7 @@ for(files in dir()){
   
   row_count = row_count + nrow(raw_data)
   colnames(raw_data) <- c("brand_name","auto_dom","auto_imp","auto_total","comm_dom","comm_imp","comm_total","total_dom","total_imp","total_total")
-  raw_data <- raw_data %>% mutate_if(is.numeric,funs(ifelse(is.na(.),0,.))) %>% mutate(year=strsplit(files, "[.]")[[1]][1],month=strsplit(files, "[.]")[[1]][2])
+  raw_data <- raw_data %>% mutate_if(is.numeric,funs(ifelse(is.na(.),0,.))) %>% mutate(year=as.numeric(strsplit(files, "[.]")[[1]][1]),month=as.numeric(strsplit(files, "[.]")[[1]][2]))
   all_data = rbind(all_data, raw_data)                                                                                    
 }
 
