@@ -25,7 +25,7 @@ all_data = all_data %>%
   filter(!(is.na(brand_name) | brand_name == "TOPLAM:" | brand_name == "TOPLAM" | grepl("ODD", brand_name)))
 
 all_data = all_data %>%
-  mutate(ifelse(brand_name == "ASTON MARTÝN", "ASTON MARTIN", brand_name))
+  mutate(brand_name = ifelse(brand_name == "ASTON MARTÝN", "ASTON MARTIN", brand_name))
 
 saveRDS(all_data, file = "all_data")
 # all_data = readRDS("all_data")
